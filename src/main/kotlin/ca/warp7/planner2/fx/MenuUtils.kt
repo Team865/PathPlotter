@@ -4,6 +4,7 @@ package ca.warp7.planner2.fx
 
 import javafx.event.ActionEvent
 import javafx.event.EventHandler
+import javafx.scene.control.CheckMenuItem
 import javafx.scene.control.Menu
 import javafx.scene.control.MenuBar
 import javafx.scene.control.MenuItem
@@ -29,6 +30,15 @@ fun Menu.name(name: String) {
 
 fun menuItem(name: String, combo: KeyCombination?, action: () -> Unit): MenuItem {
     val mi = MenuItem(name)
+    if (combo != null) {
+        mi.accelerator = combo
+    }
+    mi.setOnAction { action() }
+    return mi
+}
+
+fun checkItem(name: String, combo: KeyCombination?, action: () -> Unit): MenuItem {
+    val mi = CheckMenuItem(name)
     if (combo != null) {
         mi.accelerator = combo
     }

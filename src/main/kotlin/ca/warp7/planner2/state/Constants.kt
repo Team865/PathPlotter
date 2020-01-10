@@ -1,4 +1,4 @@
-package ca.warp7.planner2
+package ca.warp7.planner2.state
 
 object Constants {
     const val kFieldSize = 8.2296 // metres; equals 27 ft

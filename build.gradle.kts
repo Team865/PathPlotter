@@ -9,7 +9,7 @@ plugins {
     kotlin("jvm") version "1.3.60"
     id("org.javamodularity.moduleplugin") version "1.6.0"
     id("org.openjfx.javafxplugin") version "0.0.9-SNAPSHOT"
-    id("org.beryx.jlink") version "2.16.4"
+    id("org.beryx.jlink") version "2.17.0"
 }
 
 repositories {
@@ -49,16 +49,13 @@ tasks.withType<Test> {
 }
 
 val wpilibVersion = "2020.1.2"
-val jacksonVersion = "2.10.0"
 
 dependencies {
     implementation(kotlin("stdlib"))
 
     implementation("edu.wpi.first.wpilibj:wpilibj-java:$wpilibVersion")
     implementation("edu.wpi.first.wpiutil:wpiutil-java:$wpilibVersion")
-    implementation("com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion")
-    implementation("com.fasterxml.jackson.core:jackson-core:$jacksonVersion")
-    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
+//    implementation(files("ejml-combined-0.38.jar"))
 
     testImplementation(kotlin("test"))
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-api", version = "5.5.1")

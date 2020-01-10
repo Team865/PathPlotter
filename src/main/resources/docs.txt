@@ -1,0 +1,21 @@
+M - Mirror across centre
+I - Invert direction
+D - Delete Point
+N - New Point
+T - Insert Quick Turn
+R - Add Reverse Path
+Space - Begin Simulation
+Arrow Key - Translate Selected Point
+Q, W - Rotate Selected Point by 15 degrees
+Shift + Q, W - Rotate Selected Point by 1 degree
+Minus, Equal - Change Max Velocity Limit by 10%
+Brackets - Change Max Acceleration Limit by 10%
+J - Enable/Disable Jerk Limiting
+G - Show Graphs
+O - Enable/Disable Curvature Change Optimization
+
+In Simulation:
+Space - Pause
+Escape - Stop
+Minus, Equal - Shift by 0.1 seconds
+Brackets - Shift by 1 second

@@ -1,0 +1,30 @@
+{
+  "background_source": "built-in",
+  "background_image": "2019-red",
+  "max_velocity_m_s": 3.5,
+  "max_acceleration_m_s2": 3.0,
+  "max_centripetal_acceleration_rad_s": 3.0,
+  "robot_length_m": 0.42,
+  "robot_width_m": 0.33,
+  "wheelbase_radius_m": 0.5,
+  "max_jerk": 0.0,
+  "jerk_limit_enabled": false,
+
+  "segments": [
+    {
+      "inverted": false,
+      "waypoints": [
+        {
+          "x_m": 1.829,
+          "y_m": 1.219,
+          "heading_degrees": 0.0
+        },
+        {
+          "x_m": 5.120,
+          "y_m": 3.414,
+          "heading_degrees": 32.0
+        }
+      ]
+    }
+  ]
+}
