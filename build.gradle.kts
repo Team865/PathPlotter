@@ -73,12 +73,14 @@ dependencies {
     implementation("edu.wpi.first.wpiutil:wpiutil-java:$wpilibVersion")
     implementation("edu.wpi.first.ntcore:ntcore-java:$wpilibVersion")
     implementation("edu.wpi.first.ntcore:ntcore-jni:$wpilibVersion:$platform")
+    implementation("org.kordamp.ikonli:ikonli-javafx:11.3.5")
+    implementation("org.kordamp.ikonli:ikonli-materialdesign-pack:11.3.5")
 
     testImplementation(kotlin("test"))
-    testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-api", version = "5.5.1")
+    testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-api", version = "5.6.0")
 
-    testRuntimeOnly(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = "5.5.1")
-    testRuntimeOnly(group = "org.junit.platform", name = "junit-platform-launcher", version = "1.5.1")
+    testRuntimeOnly(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = "5.6.0")
+    testRuntimeOnly(group = "org.junit.platform", name = "junit-platform-launcher", version = "1.6.0")
 }
 
 jlink {
