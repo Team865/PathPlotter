@@ -32,7 +32,7 @@ import javafx.stage.Stage
 import kotlin.math.min
 import kotlin.system.measureNanoTime
 
-class Planner2 {
+class PathPlotter {
 
     val stage = Stage()
 
@@ -89,7 +89,7 @@ class Planner2 {
         stage.title = "FRC Drive Path Planner"
         stage.width = 1000.0
         stage.height = 600.0
-        stage.icons.add(Image(Planner2::class.java.getResourceAsStream("/icon.png")))
+        stage.icons.add(Image(PathPlotter::class.java.getResourceAsStream("/icon.png")))
     }
 
     private val dialogs = Dialogs(stage)

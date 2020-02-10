@@ -82,7 +82,7 @@ class PathWizard(owner: Stage?) {
     fun show() {
         dialog.showAndWait()
         if (dialog.result == ButtonType.OK) {
-            Planner2().stage.show()
+            PathPlotter().stage.show()
         }
     }
 }
