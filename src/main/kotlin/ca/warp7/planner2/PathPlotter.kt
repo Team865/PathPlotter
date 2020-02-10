@@ -85,6 +85,7 @@ class PathPlotter {
         })
         canvas.isFocusTraversable = true
         canvas.addEventFilter(MouseEvent.MOUSE_CLICKED) { canvas.requestFocus() }
+        view.stylesheets.add("/style.css")
         stage.scene = Scene(view)
         stage.title = "FRC Drive Path Planner"
         stage.width = 1000.0
@@ -110,9 +111,7 @@ class PathPlotter {
             menuItem("Configure Path", combo(KeyCode.COMMA, control = true)) {
                 //                config.showSettings(stage)
 //                regenerate()
-            },
-            MenuItem("Generate WPILib Java function"),
-            MenuItem("Generate WPILib C++ function")
+            }
     )
 
     private val editMenu = Menu(

@@ -17,7 +17,7 @@ class MecanumKinematicsHandler : ConstraintHandler {
         dialog.initOwner(owner)
         dialog.dialogPane.content = VBox().apply {
             spacing = 4.0
-            children.add(CheckBox("Enable constraint"))
+            children.add(CheckBox("Enable constraint").apply { prefWidth = 200.0 })
 
             children.add(Label("Max velocity in metres per second"))
             children.add(TextField())
