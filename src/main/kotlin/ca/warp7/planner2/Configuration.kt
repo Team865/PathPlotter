@@ -5,11 +5,13 @@ import javafx.scene.image.Image
 import javafx.scene.layout.GridPane
 import javafx.stage.FileChooser
 import javafx.stage.Window
+import kotlin.reflect.KProperty
 
 /**
  * The part of the State that the user sets in a
  * dialog box
  */
+@Suppress("MemberVisibilityCanBePrivate")
 class Configuration {
     var wheelbaseRadius = 0.0
     var maxVelocity = 0.0
@@ -23,7 +25,7 @@ class Configuration {
     private fun validate(str: String, old: Double): Double {
         return try {
             str.trim().toDouble()
-        } catch (e: NumberFormatException) {
+        } catch (e: java.lang.NumberFormatException) {
             val dialog = Dialog<ButtonType>()
             dialog.title = "Settings Error"
             dialog.dialogPane.buttonTypes.add(ButtonType.OK)

@@ -23,12 +23,11 @@ import javafx.scene.image.Image
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyCombination
 import javafx.scene.input.MouseEvent
-import javafx.scene.layout.BorderPane
-import javafx.scene.layout.HBox
-import javafx.scene.layout.Pane
-import javafx.scene.layout.VBox
+import javafx.scene.layout.*
 import javafx.scene.paint.Color
 import javafx.stage.Stage
+import org.kordamp.ikonli.materialdesign.MaterialDesign
+import org.kordamp.ikonli.materialdesign.MaterialDesign.*
 import kotlin.math.min
 import kotlin.system.measureNanoTime
 
@@ -54,11 +53,32 @@ class PathPlotter {
 
     private val pointStatusLabel = Label()
 
+    val sig = StackPane().apply {
+        val pb = ProgressBar(0.0).apply {
+            this.prefWidth = 1000.0
+            this.padding = Insets(4.0)
+        }
+
+        val slider = Slider().apply {
+            this.prefWidth = 1000.0
+            this.value = 0.1
+            this.max = 1.0
+            this.min = 0.0
+            this.padding = Insets(4.0)
+            valueProperty().addListener { _, _, nv ->
+                pb.progress = nv.toDouble()
+            }
+        }
+
+        children.addAll(pb, slider)
+    }
+
     val view = BorderPane().apply {
         top = menuBar
         center = canvasContainer
         bottom = VBox().apply {
             children.addAll(
+                    sig,
                     HBox().apply {
                         style = "-fx-background-color: white"
                         padding = Insets(4.0, 16.0, 4.0, 16.0)
@@ -102,13 +122,13 @@ class PathPlotter {
     private val ref = PixelReference()
 
     private val fileMenu = Menu("File", null,
-            menuItem("New/Open Trajectory", combo(KeyCode.N, control = true)) {
+            menuItem("New/Open Trajectory", MDI_PLUS, combo(KeyCode.N, control = true)) {
                 PathWizard(stage).show()
             },
-            menuItem("Save as", combo(KeyCode.S, control = true)) {
+            menuItem("Save as", MDI_CONTENT_SAVE, combo(KeyCode.S, control = true)) {
 
             },
-            menuItem("Configure Path", combo(KeyCode.COMMA, control = true)) {
+            menuItem("Configure Path", MDI_SETTINGS, combo(KeyCode.COMMA, control = true)) {
                 //                config.showSettings(stage)
 //                regenerate()
             }
@@ -121,7 +141,7 @@ class PathPlotter {
             MenuItem("Insert Reverse Direction"),
             MenuItem("Insert Quick Turn"),
             MenuItem("Reverse Point(s)"),
-            menuItem("Select All", combo(KeyCode.A, control = true)) {
+            menuItem("Select All", null, combo(KeyCode.A, control = true)) {
                 for (cp in path.controlPoints) cp.isSelected = true
                 redrawScreen()
             }
@@ -129,7 +149,7 @@ class PathPlotter {
 
     private fun transformItem(name: String, combo: KeyCombination, x: Double,
                               y: Double, theta: Double, fieldRelative: Boolean): MenuItem {
-        return menuItem(name, combo) {
+        return menuItem(name, null, combo) {
             transformSelected(x, y, theta, fieldRelative)
         }
     }
@@ -150,24 +170,24 @@ class PathPlotter {
     private val pointMenu = Menu(
             "Selection",
             null,
-            menuItem("Delete Point(s)", combo(KeyCode.D)) {
+            menuItem("Delete Point(s)", MDI_DELETE, combo(KeyCode.D)) {
                 if (path.controlPoints.count { !it.isSelected } >= 2) {
                     path.controlPoints.removeIf { it.isSelected }
                     regenerate()
                 }
             },
-            menuItem("Edit Point(s)", combo(KeyCode.E)) {
+            menuItem("Edit Point(s)", MDI_PEN, combo(KeyCode.E)) {
 
             },
-            menuItem("Transform Point(s)", combo(KeyCode.T)) {
+            menuItem("Transform Point(s)", MDI_CURSOR_MOVE, combo(KeyCode.T)) {
 
             },
             stopMenu)
 
     private val trajectoryMenu = Menu("Trajectory", null,
-            menuItem("Start/Pause Simulation", combo(KeyCode.SPACE)) { onSpacePressed() },
-            menuItem("Stop Simulation", combo(KeyCode.DIGIT0)) { stopSimulation() },
-            menuItem("Graphs", combo(KeyCode.G, control = true)) { showGraphs() },
+            menuItem("Start/Pause Simulation", MDI_PLAY, combo(KeyCode.SPACE)) { onSpacePressed() },
+            menuItem("Stop Simulation", MDI_STOP, combo(KeyCode.DIGIT0)) { stopSimulation() },
+            menuItem("Graphs", MDI_CHART_LINE, combo(KeyCode.G, control = true)) { showGraphs() },
             SeparatorMenuItem()
     )
 
@@ -392,6 +412,7 @@ class PathPlotter {
             }
         }
         pointStatus.clear()
+        pointStatus["Info"] = "No Point Selected"
     }
 
     private fun drawAllControlPoints() {

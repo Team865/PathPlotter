@@ -8,9 +8,10 @@ import javafx.scene.control.Menu
 import javafx.scene.control.TextArea
 import javafx.scene.input.KeyCode
 import javafx.stage.Stage
+import org.kordamp.ikonli.materialdesign.MaterialDesign
 
 class Dialogs(val stage: Stage) {
-    private val shortcutButton = menuItem("Keyboard Shortcuts", combo(KeyCode.F1)) {
+    private val shortcutButton = menuItem("Keyboard Shortcuts", MaterialDesign.MDI_KEYBOARD, combo(KeyCode.F1)) {
         val dialog = Dialog<ButtonType>()
         dialog.title = "Shortcuts"
         dialog.contentText = Dialogs::class.java.getResourceAsStream("/docs.txt")
@@ -20,7 +21,7 @@ class Dialogs(val stage: Stage) {
         dialog.show()
     }
 
-    private val aboutButton = menuItem("About", combo(KeyCode.F1, shift = true)) {
+    private val aboutButton = menuItem("About", MaterialDesign.MDI_INFORMATION, combo(KeyCode.F1, shift = true)) {
         val dialog = Dialog<ButtonType>()
         dialog.title = "About FRC Drive Path Planner"
         dialog.contentText = """FRC Drive Path Planner version 2020.1.0
@@ -36,7 +37,7 @@ Max Heap Size: ${Runtime.getRuntime().maxMemory() / 1024 / 1024}Mb"""
         dialog.show()
     }
 
-    private val githubButton = menuItem("Show Project on GitHub", null) {
+    private val githubButton = menuItem("Show Project on GitHub", MaterialDesign.MDI_GITHUB_CIRCLE, null) {
         PlannerApplication.host?.showDocument("https://github.com/Team865/Path-Planner/")
     }
 

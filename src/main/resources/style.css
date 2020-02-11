@@ -52,5 +52,21 @@
 }
 
 .menu-item:focused {
-    -fx-background-color: #ddd;
+    -fx-background-color: #5a8ade;
+    -fx-text-fill: white;
+}
+
+.menu-item:focused .label{
+    -fx-text-fill: white;
+}
+
+.menu-item:focused .ikonli-font-icon{
+    -fx-icon-color: white;
+}
+
+.slider .track {
+    -fx-background-color:null;  /* Hide the track */
+    -fx-background-insets: 1 0 -1 0, 0, 1;
+    -fx-background-radius: 2.5, 2.5, 1.5;
+    -fx-padding: 0.208333em; /* 2.5 */
 }

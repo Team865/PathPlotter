@@ -9,6 +9,8 @@ import javafx.scene.control.Menu
 import javafx.scene.control.MenuBar
 import javafx.scene.control.MenuItem
 import javafx.scene.input.KeyCombination
+import org.kordamp.ikonli.Ikon
+import org.kordamp.ikonli.javafx.FontIcon
 
 
 inline fun menuBar(builder: MenuBar.() -> Unit): MenuBar = MenuBar().apply(builder)
@@ -28,19 +30,13 @@ fun Menu.name(name: String) {
     text = name
 }
 
-fun menuItem(name: String, combo: KeyCombination?, action: () -> Unit): MenuItem {
+fun menuItem(name: String, icon: Ikon?, combo: KeyCombination?, action: () -> Unit): MenuItem {
     val mi = MenuItem(name)
     if (combo != null) {
         mi.accelerator = combo
     }
-    mi.setOnAction { action() }
-    return mi
-}
-
-fun checkItem(name: String, combo: KeyCombination?, action: () -> Unit): MenuItem {
-    val mi = CheckMenuItem(name)
-    if (combo != null) {
-        mi.accelerator = combo
+    if (icon != null) {
+        mi.graphic = FontIcon.of(icon, 15)
     }
     mi.setOnAction { action() }
     return mi
