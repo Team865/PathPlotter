@@ -26,7 +26,6 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
 import javafx.stage.Stage
-import org.kordamp.ikonli.materialdesign.MaterialDesign
 import org.kordamp.ikonli.materialdesign.MaterialDesign.*
 import kotlin.math.min
 import kotlin.system.measureNanoTime
@@ -35,45 +34,33 @@ class PathPlotter {
 
     val stage = Stage()
 
-    val menuBar = MenuBar()
+    private val menuBar = MenuBar()
 
-    val canvas: Canvas = Canvas()
-    val canvasContainer = Pane(canvas)
+    private val canvas: Canvas = Canvas()
+    private val canvasContainer = Pane(canvas)
 
 
-    val pathStatus: ObservableMap<String, String> = FXCollections
+    private val pathStatus: ObservableMap<String, String> = FXCollections
             .observableMap<String, String>(LinkedHashMap())
 
     private val pathStatusLabel = Label().apply {
         style = "-fx-text-fill: white"
     }
 
-    val pointStatus: ObservableMap<String, String> = FXCollections
+    private val pointStatus: ObservableMap<String, String> = FXCollections
             .observableMap<String, String>(LinkedHashMap())
 
     private val pointStatusLabel = Label()
 
-    val sig = StackPane().apply {
-        val pb = ProgressBar(0.0).apply {
-            this.prefWidth = 1000.0
-            this.padding = Insets(4.0)
-        }
-
-        val slider = Slider().apply {
-            this.prefWidth = 1000.0
-            this.value = 0.1
-            this.max = 1.0
-            this.min = 0.0
-            this.padding = Insets(4.0)
-            valueProperty().addListener { _, _, nv ->
-                pb.progress = nv.toDouble()
-            }
-        }
-
-        children.addAll(pb, slider)
+    private val sig = Slider().apply {
+        this.prefWidth = 1000.0
+        this.value = 0.0
+        this.max = 1.0
+        this.min = 0.0
+        this.padding = Insets(4.0)
     }
 
-    val view = BorderPane().apply {
+    private val view = BorderPane().apply {
         top = menuBar
         center = canvasContainer
         bottom = VBox().apply {
@@ -224,7 +211,7 @@ class PathPlotter {
         }
     }
 
-    var isDraggingAngle = false
+    private var isDraggingAngle = false
 
     private fun onMousePressed(x: Double, y: Double) {
         if (simulating) return
@@ -331,7 +318,7 @@ class PathPlotter {
         }
     }
 
-    fun regenerate() {
+    private fun regenerate() {
 
         val time = measureNanoTime {
             path.regenerateAll()
@@ -436,11 +423,11 @@ class PathPlotter {
         }
     }
 
-    var simulating = false
-    var simPaused = false
-    var simElapsed = 0.0
-    var simElapsedChanged = false
-    var lastTime = 0.0
+    private var simulating = false
+    private var simPaused = false
+    private var simElapsed = 0.0
+    private var simElapsedChanged = false
+    private var lastTime = 0.0
 
     private fun onSpacePressed() {
         if (simulating) {
