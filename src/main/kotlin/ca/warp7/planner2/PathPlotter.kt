@@ -1,6 +1,7 @@
 package ca.warp7.planner2
 
 import ca.warp7.planner2.fx.combo
+import ca.warp7.planner2.fx.label
 import ca.warp7.planner2.fx.menuItem
 import ca.warp7.planner2.state.Constants
 import ca.warp7.planner2.state.PixelReference
@@ -23,7 +24,10 @@ import javafx.scene.image.Image
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyCombination
 import javafx.scene.input.MouseEvent
-import javafx.scene.layout.*
+import javafx.scene.layout.BorderPane
+import javafx.scene.layout.HBox
+import javafx.scene.layout.Pane
+import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
 import javafx.stage.Stage
 import org.kordamp.ikonli.materialdesign.MaterialDesign.*
@@ -52,12 +56,11 @@ class PathPlotter {
 
     private val pointStatusLabel = Label()
 
-    private val sig = Slider().apply {
-        this.prefWidth = 1000.0
+    private val timeSlider = Slider().apply {
         this.value = 0.0
+        this.prefWidth = 300.0
         this.max = 1.0
         this.min = 0.0
-        this.padding = Insets(4.0)
     }
 
     private val view = BorderPane().apply {
@@ -65,15 +68,17 @@ class PathPlotter {
         center = canvasContainer
         bottom = VBox().apply {
             children.addAll(
-                    sig,
                     HBox().apply {
-                        style = "-fx-background-color: white"
-                        padding = Insets(4.0, 16.0, 4.0, 16.0)
-                        children.add(pointStatusLabel)
+                        spacing = 8.0
+                        padding = Insets(4.0, 8.0, 4.0, 8.0)
+                        this.style = "-fx-background-color: white"
+                        this.children.addAll(timeSlider, label("0.00/2.56s").apply {
+                            style = "-fx-font-weight:bold"
+                        }, pointStatusLabel)
                     },
                     HBox().apply {
-                        style = "-fx-background-color: #1e2e4a"
-                        padding = Insets(4.0, 16.0, 4.0, 16.0)
+                        style = "-fx-background-color: #5a8ade"
+                        padding = Insets(4.0, 8.0, 4.0, 8.0)
                         children.add(pathStatusLabel)
                     }
             )
@@ -95,7 +100,7 @@ class PathPlotter {
         view.stylesheets.add("/style.css")
         stage.scene = Scene(view)
         stage.title = "FRC Drive Path Planner"
-        stage.width = 1000.0
+        stage.width = 950.0
         stage.height = 600.0
         stage.icons.add(Image(PathPlotter::class.java.getResourceAsStream("/icon.png")))
     }
@@ -109,7 +114,7 @@ class PathPlotter {
     private val ref = PixelReference()
 
     private val fileMenu = Menu("File", null,
-            menuItem("New/Open Trajectory", MDI_PLUS, combo(KeyCode.N, control = true)) {
+            menuItem("New/Open Trajectory", MDI_FOLDER, combo(KeyCode.N, control = true)) {
                 PathWizard(stage).show()
             },
             menuItem("Save as", MDI_CONTENT_SAVE, combo(KeyCode.S, control = true)) {
@@ -147,7 +152,7 @@ class PathPlotter {
             transformItem("Move up 0.01 metres", combo(KeyCode.UP), 0.0, 0.01, 0.0, true),
             transformItem("Move down 0.01 metres", combo(KeyCode.DOWN), 0.0, -0.01, 0.0, true),
             transformItem("Move left 0.01 metres", combo(KeyCode.LEFT), -0.01, 0.0, 0.0, true),
-            transformItem("Move right 0.01 metres", combo(KeyCode.RIGHT),  0.01, 0.0, 0.0, true),
+            transformItem("Move right 0.01 metres", combo(KeyCode.RIGHT), 0.01, 0.0, 0.0, true),
             transformItem("Move forward 0.01 metres", combo(KeyCode.UP, shift = true), 0.01, 0.0, 0.0, false),
             transformItem("Move reverse 0.01 metres", combo(KeyCode.DOWN, shift = true), -0.01, 0.0, 0.0, false),
             transformItem("Move left-normal 0.01 metres", combo(KeyCode.LEFT, shift = true), 0.0, 0.01, 0.0, false),
@@ -259,7 +264,7 @@ class PathPlotter {
         }
     }
 
-    private fun drag(x:Double, y: Double) {
+    private fun drag(x: Double, y: Double) {
         if (simulating) return
         val mouseOnField = ref.inverseTransform(Translation2d(x, y))
         for (controlPoint in path.controlPoints) {
@@ -325,17 +330,14 @@ class PathPlotter {
         } / 1E6
 
         pathStatus.putAll(mapOf(
-                "∫(dξ)" to "${path.totalDist.f2}m",
-                "∫(dt)" to "${path.totalTime.f2}s",
-                "Σ(dCurvature²)" to path.totalSumOfCurvature.f2,
-                "Optimize" to path.optimizing.toString(),
-                "MaxVel" to "", //state.maxVelString(),
-                "MaxAcc" to "", // state.maxAccString(),
-                "MaxCAcc" to "", // state.maxAcString(),
+                "TotalDist" to "${path.totalDist.f2}m",
+                "TotalTime" to "${path.totalTime.f2}s",
+                "SumDCurvatureSq" to path.totalSumOfCurvature.f2,
+                "MaxVel" to "${path.maxVelocity.f2}m/s",
+                "MaxAcc" to "${path.maxAcceleration.f2}m/s",
                 "ComputeTime" to "${time.f2}ms"
         ))
         pointStatus.putAll(mapOf(
-                "t" to "0.0s",
                 "x" to "0.0m",
                 "y" to "0.0m",
                 "heading" to "0.0deg",
@@ -352,8 +354,8 @@ class PathPlotter {
         val bg = path.background
         val imageWidthToHeight = bg.width / bg.height
 
-        var w = canvas.width - 32
-        var h = canvas.height - 32
+        var w = canvas.width - 8
+        var h = canvas.height - 8
 
         w = min(w, h * imageWidthToHeight)
         h = min(w * imageWidthToHeight, w / imageWidthToHeight)
@@ -385,12 +387,12 @@ class PathPlotter {
     private fun updateSelectedPointInfo() {
         for (cp in path.controlPoints) {
             if (cp.isSelected) {
+                pointStatus.clear()
                 pointStatus.putAll(mapOf(
-                        "t" to "---s",
                         "x" to "${cp.pose.translation.x.f}m",
                         "y" to "${cp.pose.translation.y.f}m",
                         "heading" to "${cp.pose.rotation.degrees.f}deg",
-                        "curvature" to "---rad/m",
+                        "k" to "---rad/m",
                         "v" to "---m/s",
                         "ω" to "---rad/s",
                         "dv/dt" to "---m/s^2"
@@ -399,7 +401,6 @@ class PathPlotter {
             }
         }
         pointStatus.clear()
-        pointStatus["Info"] = "No Point Selected"
     }
 
     private fun drawAllControlPoints() {
@@ -480,12 +481,12 @@ class PathPlotter {
 
         val w = sample.velocityMetersPerSecond * sample.curvatureRadPerMeter
 
+        pointStatus.clear()
         pointStatus.putAll(mapOf(
-                "t" to "${sample.timeSeconds.f2}s",
                 "x" to "${sample.poseMeters.translation.x.f2}m",
                 "y" to "${sample.poseMeters.translation.y.f2}m",
                 "heading" to "${sample.poseMeters.rotation.degrees.f2}deg",
-                "curvature" to "${sample.curvatureRadPerMeter.f2}rad/m",
+                "k" to "${sample.curvatureRadPerMeter.f2}rad/m",
                 "v" to "${sample.velocityMetersPerSecond.f2}m/s",
                 "ω" to "${w.f2}rad/s",
                 "dv/dt" to "${sample.accelerationMetersPerSecondSq.f2}m/s^2"

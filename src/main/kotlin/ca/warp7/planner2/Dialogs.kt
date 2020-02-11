@@ -21,7 +21,7 @@ class Dialogs(val stage: Stage) {
         dialog.show()
     }
 
-    private val aboutButton = menuItem("About", MaterialDesign.MDI_INFORMATION, combo(KeyCode.F1, shift = true)) {
+    private val aboutButton = menuItem("About", MaterialDesign.MDI_INFORMATION_OUTLINE, combo(KeyCode.F1, shift = true)) {
         val dialog = Dialog<ButtonType>()
         dialog.title = "About FRC Drive Path Planner"
         dialog.contentText = """FRC Drive Path Planner version 2020.1.0

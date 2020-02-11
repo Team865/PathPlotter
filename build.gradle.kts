@@ -21,7 +21,7 @@ repositories {
 }
 
 group = "ca.warp7.planner2"
-version = "2020.1.0-alpha-1"
+version = "2020.2.0"
 
 application {
     mainClassName = "path.planner/ca.warp7.planner2.MainKt"
