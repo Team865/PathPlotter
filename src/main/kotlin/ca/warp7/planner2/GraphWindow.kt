@@ -1,6 +1,8 @@
 package ca.warp7.planner2
 
 import ca.warp7.planner2.state.Path
+import ca.warp7.planner2.util.f
+import ca.warp7.planner2.util.f1
 import javafx.beans.value.ChangeListener
 import javafx.scene.Scene
 import javafx.scene.canvas.Canvas
@@ -10,7 +12,6 @@ import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import javafx.scene.text.FontSmoothingType
 import javafx.stage.Stage
-import javafx.stage.StageStyle
 
 class GraphWindow(owner: Stage, val path: Path) {
     private val stage = Stage()

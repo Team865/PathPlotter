@@ -20,7 +20,7 @@ repositories {
     maven { setUrl("https://frcmaven.wpi.edu/artifactory/release") }
 }
 
-group = "ca.warp7.planner2"
+group = "path.plotter"
 version = "2020.2.0"
 
 application {

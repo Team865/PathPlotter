@@ -1,6 +1,6 @@
 @file:JvmName("Util")
 
-package ca.warp7.planner2
+package ca.warp7.planner2.util
 
 import kotlin.math.PI
 import kotlin.math.abs

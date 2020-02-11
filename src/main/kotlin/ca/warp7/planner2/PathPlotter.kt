@@ -6,6 +6,8 @@ import ca.warp7.planner2.fx.menuItem
 import ca.warp7.planner2.state.Constants
 import ca.warp7.planner2.state.PixelReference
 import ca.warp7.planner2.state.getDefaultPath
+import ca.warp7.planner2.util.f
+import ca.warp7.planner2.util.f2
 import edu.wpi.first.wpilibj.geometry.Pose2d
 import edu.wpi.first.wpilibj.geometry.Rotation2d
 import edu.wpi.first.wpilibj.geometry.Translation2d
@@ -331,7 +333,6 @@ class PathPlotter {
 
         pathStatus.putAll(mapOf(
                 "TotalDist" to "${path.totalDist.f2}m",
-                "TotalTime" to "${path.totalTime.f2}s",
                 "SumDCurvatureSq" to path.totalSumOfCurvature.f2,
                 "MaxVel" to "${path.maxVelocity.f2}m/s",
                 "MaxAcc" to "${path.maxAcceleration.f2}m/s",

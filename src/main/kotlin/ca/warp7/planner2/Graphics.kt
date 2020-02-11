@@ -2,6 +2,7 @@ package ca.warp7.planner2
 
 import ca.warp7.planner2.state.Constants
 import ca.warp7.planner2.state.PixelReference
+import ca.warp7.planner2.util.linearInterpolate
 import edu.wpi.first.wpilibj.geometry.Pose2d
 import edu.wpi.first.wpilibj.geometry.Rotation2d
 import edu.wpi.first.wpilibj.geometry.Translation2d

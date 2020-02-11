@@ -37,7 +37,7 @@ class Path {
         trajectoryList.clear()
         trajectoryList.add(TrajectoryParameterizer.timeParameterizeTrajectory(x, listOf(
                 DifferentialDriveKinematicsConstraint(
-                        DifferentialDriveKinematics(1.0),
+                        DifferentialDriveKinematics(0.66),
                         3.0
                 )
         ),
