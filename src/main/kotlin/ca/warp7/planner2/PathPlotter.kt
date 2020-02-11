@@ -1,22 +1,17 @@
 package ca.warp7.planner2
 
 import ca.warp7.planner2.fx.combo
-import ca.warp7.planner2.fx.label
 import ca.warp7.planner2.fx.menuItem
 import ca.warp7.planner2.state.Constants
 import ca.warp7.planner2.state.PixelReference
 import ca.warp7.planner2.state.getDefaultPath
-import ca.warp7.planner2.util.f
-import ca.warp7.planner2.util.f2
+import ca.warp7.planner2.ui.InfoBar
 import edu.wpi.first.wpilibj.geometry.Pose2d
 import edu.wpi.first.wpilibj.geometry.Rotation2d
 import edu.wpi.first.wpilibj.geometry.Translation2d
 import javafx.animation.AnimationTimer
 import javafx.application.Platform
 import javafx.beans.value.ChangeListener
-import javafx.collections.FXCollections
-import javafx.collections.MapChangeListener
-import javafx.collections.ObservableMap
 import javafx.geometry.Insets
 import javafx.scene.Scene
 import javafx.scene.canvas.Canvas
@@ -45,25 +40,14 @@ class PathPlotter {
     private val canvas: Canvas = Canvas()
     private val canvasContainer = Pane(canvas)
 
-
-    private val pathStatus: ObservableMap<String, String> = FXCollections
-            .observableMap<String, String>(LinkedHashMap())
-
-    private val pathStatusLabel = Label().apply {
-        style = "-fx-text-fill: white"
-    }
-
-    private val pointStatus: ObservableMap<String, String> = FXCollections
-            .observableMap<String, String>(LinkedHashMap())
-
-    private val pointStatusLabel = Label()
-
     private val timeSlider = Slider().apply {
         this.value = 0.0
         this.prefWidth = 300.0
         this.max = 1.0
         this.min = 0.0
     }
+
+    private val infoBar = InfoBar()
 
     private val view = BorderPane().apply {
         top = menuBar
@@ -74,29 +58,18 @@ class PathPlotter {
                         spacing = 8.0
                         padding = Insets(4.0, 8.0, 4.0, 8.0)
                         this.style = "-fx-background-color: white"
-                        this.children.addAll(timeSlider, label("0.00/2.56s").apply {
-                            style = "-fx-font-weight:bold"
-                        }, pointStatusLabel)
+                        this.children.addAll(timeSlider,
+                                RadioButton("Planned"),
+                                RadioButton("Actual"),
+                                RadioButton("Error"))
                     },
-                    HBox().apply {
-                        style = "-fx-background-color: #5a8ade"
-                        padding = Insets(4.0, 8.0, 4.0, 8.0)
-                        children.add(pathStatusLabel)
-                    }
+                    infoBar.container
             )
         }
     }
 
     init {
         menuBar.isUseSystemMenuBar = true
-        pathStatus.addListener(MapChangeListener {
-            pathStatusLabel.text = pathStatus.entries
-                    .joinToString("   ") { it.key + ": " + it.value }
-        })
-        pointStatus.addListener(MapChangeListener {
-            pointStatusLabel.text = pointStatus.entries
-                    .joinToString("   ") { it.key + ": " + it.value }
-        })
         canvas.isFocusTraversable = true
         canvas.addEventFilter(MouseEvent.MOUSE_CLICKED) { canvas.requestFocus() }
         view.stylesheets.add("/style.css")
@@ -327,26 +300,14 @@ class PathPlotter {
 
     private fun regenerate() {
 
+        @Suppress("UNUSED_VARIABLE")
         val time = measureNanoTime {
             path.regenerateAll()
         } / 1E6
 
-        pathStatus.putAll(mapOf(
-                "TotalDist" to "${path.totalDist.f2}m",
-                "SumDCurvatureSq" to path.totalSumOfCurvature.f2,
-                "MaxVel" to "${path.maxVelocity.f2}m/s",
-                "MaxAcc" to "${path.maxAcceleration.f2}m/s",
-                "ComputeTime" to "${time.f2}ms"
-        ))
-        pointStatus.putAll(mapOf(
-                "x" to "0.0m",
-                "y" to "0.0m",
-                "heading" to "0.0deg",
-                "curvature" to "0.0rad/m",
-                "v" to "0.0m/s",
-                "ω" to "0.0rad/s",
-                "dv/dt" to "0.0m/s^2"
-        ))
+        infoBar.setDist(0.0, path.totalDist)
+        infoBar.setTime(0.0, path.totalTime)
+        infoBar.setCurve(0.0, 0.0, path.totalSumOfCurvature)
 
         redrawScreen()
     }
@@ -388,20 +349,10 @@ class PathPlotter {
     private fun updateSelectedPointInfo() {
         for (cp in path.controlPoints) {
             if (cp.isSelected) {
-                pointStatus.clear()
-                pointStatus.putAll(mapOf(
-                        "x" to "${cp.pose.translation.x.f}m",
-                        "y" to "${cp.pose.translation.y.f}m",
-                        "heading" to "${cp.pose.rotation.degrees.f}deg",
-                        "k" to "---rad/m",
-                        "v" to "---m/s",
-                        "ω" to "---rad/s",
-                        "dv/dt" to "---m/s^2"
-                ))
                 return
             }
         }
-        pointStatus.clear()
+//        pointStatus.clear()
     }
 
     private fun drawAllControlPoints() {
@@ -480,18 +431,12 @@ class PathPlotter {
 
         redrawScreen()
 
-        val w = sample.velocityMetersPerSecond * sample.curvatureRadPerMeter
+        val v = sample.velocityMetersPerSecond
+        val w = v * sample.curvatureRadPerMeter
 
-        pointStatus.clear()
-        pointStatus.putAll(mapOf(
-                "x" to "${sample.poseMeters.translation.x.f2}m",
-                "y" to "${sample.poseMeters.translation.y.f2}m",
-                "heading" to "${sample.poseMeters.rotation.degrees.f2}deg",
-                "k" to "${sample.curvatureRadPerMeter.f2}rad/m",
-                "v" to "${sample.velocityMetersPerSecond.f2}m/s",
-                "ω" to "${w.f2}rad/s",
-                "dv/dt" to "${sample.accelerationMetersPerSecondSq.f2}m/s^2"
-        ))
+        infoBar.setVel(v, w, sample.accelerationMetersPerSecondSq, 0.0)
+        infoBar.setCurve(sample.curvatureRadPerMeter, 0.0, path.totalSumOfCurvature)
+
         drawRobot(ref, gc, path.robotWidth, path.robotLength, sample.poseMeters)
         gc.stroke = Color.YELLOW
         drawArrowForPose(ref, gc, sample.poseMeters)
