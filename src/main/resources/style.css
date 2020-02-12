@@ -81,3 +81,21 @@
 .slider .thumb:pressed {
     -fx-background-color: #3c5c94;
 }
+
+.text-field {
+    -fx-padding: 2 2 2 2;
+    -fx-background-color: #f8f8f8;
+    -fx-border-color: #888;
+    -fx-border-radius: 0;
+    -fx-border-width: 1;
+    -fx-prompt-text-fill: #666;
+    -fx-text-fill: black;
+    -fx-border-insets: 0;
+    -fx-background-insets: 0;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.text-field:focused {
+    -fx-border-color: #5a8ade;
+}

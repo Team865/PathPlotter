@@ -5,6 +5,7 @@ import ca.warp7.planner2.fx.menuItem
 import ca.warp7.planner2.state.Constants
 import ca.warp7.planner2.state.PixelReference
 import ca.warp7.planner2.state.getDefaultPath
+import ca.warp7.planner2.ui.ControlBar
 import ca.warp7.planner2.ui.InfoBar
 import edu.wpi.first.wpilibj.geometry.Pose2d
 import edu.wpi.first.wpilibj.geometry.Rotation2d
@@ -12,17 +13,18 @@ import edu.wpi.first.wpilibj.geometry.Translation2d
 import javafx.animation.AnimationTimer
 import javafx.application.Platform
 import javafx.beans.value.ChangeListener
-import javafx.geometry.Insets
 import javafx.scene.Scene
 import javafx.scene.canvas.Canvas
 import javafx.scene.canvas.GraphicsContext
-import javafx.scene.control.*
+import javafx.scene.control.Menu
+import javafx.scene.control.MenuBar
+import javafx.scene.control.MenuItem
+import javafx.scene.control.SeparatorMenuItem
 import javafx.scene.image.Image
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyCombination
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.BorderPane
-import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
@@ -40,32 +42,13 @@ class PathPlotter {
     private val canvas: Canvas = Canvas()
     private val canvasContainer = Pane(canvas)
 
-    private val timeSlider = Slider().apply {
-        this.value = 0.0
-        this.prefWidth = 300.0
-        this.max = 1.0
-        this.min = 0.0
-    }
-
     private val infoBar = InfoBar()
+    private val controlBar = ControlBar()
 
     private val view = BorderPane().apply {
         top = menuBar
         center = canvasContainer
-        bottom = VBox().apply {
-            children.addAll(
-                    HBox().apply {
-                        spacing = 8.0
-                        padding = Insets(4.0, 8.0, 4.0, 8.0)
-                        this.style = "-fx-background-color: white"
-                        this.children.addAll(timeSlider,
-                                RadioButton("Planned"),
-                                RadioButton("Actual"),
-                                RadioButton("Error"))
-                    },
-                    infoBar.container
-            )
-        }
+        bottom = VBox(controlBar.container, infoBar.container)
     }
 
     init {
@@ -349,10 +332,11 @@ class PathPlotter {
     private fun updateSelectedPointInfo() {
         for (cp in path.controlPoints) {
             if (cp.isSelected) {
+                controlBar.setPose(cp.pose)
                 return
             }
         }
-//        pointStatus.clear()
+        controlBar.clearPose()
     }
 
     private fun drawAllControlPoints() {
@@ -436,6 +420,7 @@ class PathPlotter {
 
         infoBar.setVel(v, w, sample.accelerationMetersPerSecondSq, 0.0)
         infoBar.setCurve(sample.curvatureRadPerMeter, 0.0, path.totalSumOfCurvature)
+        controlBar.setPose(sample.poseMeters)
 
         drawRobot(ref, gc, path.robotWidth, path.robotLength, sample.poseMeters)
         gc.stroke = Color.YELLOW
