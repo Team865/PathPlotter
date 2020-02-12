@@ -1,8 +1,11 @@
-package ca.warp7.planner2
+package ca.warp7.planner2.ui
 
+import ca.warp7.planner2.lineTo
+import ca.warp7.planner2.normal
 import ca.warp7.planner2.state.Constants
-import ca.warp7.planner2.state.PixelReference
+import ca.warp7.planner2.translation
 import ca.warp7.planner2.util.linearInterpolate
+import ca.warp7.planner2.vertex
 import edu.wpi.first.wpilibj.geometry.Pose2d
 import edu.wpi.first.wpilibj.geometry.Rotation2d
 import edu.wpi.first.wpilibj.geometry.Translation2d

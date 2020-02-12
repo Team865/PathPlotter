@@ -1,4 +1,4 @@
-package ca.warp7.planner2.state
+package ca.warp7.planner2.ui
 
 import edu.wpi.first.wpilibj.geometry.Rotation2d
 import edu.wpi.first.wpilibj.geometry.Translation2d
