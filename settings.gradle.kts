@@ -8,4 +8,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = "Path-Planner"
+rootProject.name = "PathPlotter"

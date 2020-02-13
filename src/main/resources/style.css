@@ -1,0 +1,101 @@
+.menu-bar {
+    -fx-padding: 0 12 0 12;
+    -fx-border-width: 0;
+    -fx-border-insets: 0;
+    -fx-background-insets: 0;
+    -fx-background-color: #eee;
+}
+
+.menu {
+    -fx-padding: 3 10 3 10;
+    -fx-border-width: 0;
+    -fx-border-insets: 0;
+    -fx-background-color: transparent;
+    -fx-background-insets: 0 0 -0.7 0.3;
+}
+
+.menu .label {
+    -fx-text-fill: #444;
+}
+
+.menu:hover {
+    -fx-background-color: #ddd;
+}
+
+.menu:showing {
+    -fx-background-color: #ccc;
+}
+
+.menu-item {
+    -fx-padding: 3 6 3 6;
+}
+
+.menu-item .label {
+    -fx-text-fill: #444;
+}
+
+.context-menu {
+    -fx-padding: 0;
+    -fx-min-width: 200;
+    -fx-background-color: #eee;
+    -fx-border-width: 0.3;
+    -fx-border-insets: 1;
+    -fx-border-color: #888;
+    -fx-background-insets: 1;
+    -fx-effect: none;
+}
+
+.context-menu .separator:horizontal .line {
+    -fx-border-color: #888;
+    -fx-border-insets: 0;
+    -fx-border-width: 0.3 0 0 0;
+}
+
+.menu-item:focused {
+    -fx-background-color: #5a8ade;
+    -fx-text-fill: white;
+}
+
+.menu-item:focused .label{
+    -fx-text-fill: white;
+}
+
+.menu-item:focused .ikonli-font-icon{
+    -fx-icon-color: white;
+}
+
+.slider {
+    -fx-background-color: white;
+}
+
+.slider .track {
+    -fx-background-color: white, white, #ddd;
+}
+
+.slider .thumb {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-background-color: #5a8ade;
+}
+
+.slider .thumb:pressed {
+    -fx-background-color: #3c5c94;
+}
+
+.text-field {
+    -fx-padding: 2 2 2 2;
+    -fx-background-color: #f8f8f8;
+    -fx-border-color: #888;
+    -fx-border-radius: 0;
+    -fx-border-width: 1;
+    -fx-prompt-text-fill: #666;
+    -fx-text-fill: black;
+    -fx-border-insets: 0;
+    -fx-background-insets: 0;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.text-field:focused {
+    -fx-border-color: #5a8ade;
+}

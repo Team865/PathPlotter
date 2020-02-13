@@ -1,5 +1,6 @@
 @file:Suppress("UnusedImport", "SpellCheckingInspection")
 
+import org.gradle.internal.os.OperatingSystem
 import org.javamodularity.moduleplugin.extensions.TestModuleOptions
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -19,11 +20,11 @@ repositories {
     maven { setUrl("https://frcmaven.wpi.edu/artifactory/release") }
 }
 
-group = "ca.warp7.planner2"
-version = "2020.1.0-alpha-1"
+group = "pathplotter"
+version = "2020.2.0"
 
 application {
-    mainClassName = "path.planner/ca.warp7.planner2.MainKt"
+    mainClassName = "pathplotter/ca.warp7.pathplotter.MainKt"
 }
 
 javafx {
@@ -48,20 +49,38 @@ tasks.withType<Test> {
     }
 }
 
-val wpilibVersion = "2020.1.2"
+val wpilibVersion = "2020.2.2"
+
+fun desktopArch(): String {
+    val arch: String = System.getProperty("os.arch")
+    return if (arch == "amd64" || arch == "x86_64") "x86-64" else "x86"
+}
+
+fun desktopOS(): String {
+    return when {
+        OperatingSystem.current().isWindows -> "windows"
+        OperatingSystem.current().isMacOsX -> "osx"
+        else -> "linux"
+    }
+}
+
+val platform =  desktopOS() + desktopArch()
 
 dependencies {
     implementation(kotlin("stdlib"))
 
     implementation("edu.wpi.first.wpilibj:wpilibj-java:$wpilibVersion")
     implementation("edu.wpi.first.wpiutil:wpiutil-java:$wpilibVersion")
-//    implementation(files("ejml-combined-0.38.jar"))
+    implementation("edu.wpi.first.ntcore:ntcore-java:$wpilibVersion")
+    implementation("edu.wpi.first.ntcore:ntcore-jni:$wpilibVersion:$platform")
+    implementation("org.kordamp.ikonli:ikonli-javafx:11.3.5")
+    implementation("org.kordamp.ikonli:ikonli-materialdesign-pack:11.3.5")
 
     testImplementation(kotlin("test"))
-    testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-api", version = "5.5.1")
+    testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-api", version = "5.6.0")
 
-    testRuntimeOnly(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = "5.5.1")
-    testRuntimeOnly(group = "org.junit.platform", name = "junit-platform-launcher", version = "1.5.1")
+    testRuntimeOnly(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = "5.6.0")
+    testRuntimeOnly(group = "org.junit.platform", name = "junit-platform-launcher", version = "1.6.0")
 }
 
 jlink {
