@@ -20,11 +20,11 @@ repositories {
     maven { setUrl("https://frcmaven.wpi.edu/artifactory/release") }
 }
 
-group = "path.plotter"
+group = "pathplotter"
 version = "2020.2.0"
 
 application {
-    mainClassName = "path.planner/ca.warp7.planner2.MainKt"
+    mainClassName = "pathplotter/ca.warp7.pathplotter.MainKt"
 }
 
 javafx {

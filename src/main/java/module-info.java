@@ -1,4 +1,4 @@
-module path.planner {
+module pathplotter {
     requires kotlin.stdlib;
 
     requires javafx.controls;
@@ -8,7 +8,7 @@ module path.planner {
     requires org.kordamp.ikonli.materialdesign;
     requires org.kordamp.iconli.core;
 
-    exports ca.warp7.planner2;
+    exports ca.warp7.pathplotter;
     exports ca.warp7.frc2020.lib.trajectory;
     exports edu.wpi.first.hal;
     requires ntcore.java;
