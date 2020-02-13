@@ -10,7 +10,7 @@ import javafx.scene.image.Image
 class Path {
     var useFeaturesNotInWPILib = false
 
-    var background = Image(Path::class.java.getResourceAsStream("/2020.png"))
+    var background = Image(Path::class.java.getResourceAsStream("/2020-Field.png"))
 
     val controlPoints: MutableList<ControlPoint> = ArrayList()
 
