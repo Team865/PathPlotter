@@ -7,7 +7,6 @@ import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.control.*
 import javafx.scene.layout.HBox
-import javafx.scene.text.TextAlignment
 
 class ControlBar {
 
@@ -38,18 +37,15 @@ class ControlBar {
 
     private var mode = Mode.Planned
 
-    private fun fixWidthLabel(): Label {
-        return Label().apply {
-            prefWidth = 24.0
-            textAlignment = TextAlignment.RIGHT
-        }
+    private fun fixWidthLabel(t: String): Label {
+        return Label(t)
     }
 
-    private val xLabel = fixWidthLabel()
-    private val yLabel = fixWidthLabel()
-    private val thetaLabel = fixWidthLabel()
+    private val xLabel = fixWidthLabel("X:")
+    private val yLabel = fixWidthLabel("Y:")
+    private val thetaLabel = fixWidthLabel("θ:")
 
-    val container = HBox().apply {
+    val top = HBox().apply {
         spacing = 8.0
         padding = Insets(2.0, 8.0, 2.0, 8.0)
         this.style = "-fx-background-color: white"
@@ -59,6 +55,18 @@ class ControlBar {
                 xLabel, x,
                 yLabel, y,
                 thetaLabel, theta
+        )
+    }
+
+    val bottom = HBox().apply {
+        spacing = 8.0
+        padding = Insets(2.0, 8.0, 2.0, 8.0)
+        this.style = "-fx-background-color: white"
+        alignment = Pos.CENTER
+        children.addAll(
+                CheckBox("Invert Field"),
+                Button("Start/Pause Simulation"),
+                Button("Stop Simulation")
         )
     }
 
@@ -83,23 +91,6 @@ class ControlBar {
                 nv === actual -> Mode.Actual
                 nv === error -> Mode.Error
                 else -> throw IllegalStateException()
-            }
-            when (mode) {
-                Mode.Planned -> {
-                    xLabel.text = "P_x:"
-                    yLabel.text = "P_y:"
-                    thetaLabel.text = "P_θ:"
-                }
-                Mode.Actual -> {
-                    xLabel.text = "A_x:"
-                    yLabel.text = "A_y:"
-                    thetaLabel.text = "A_θ:"
-                }
-                Mode.Error -> {
-                    xLabel.text = "E_x:"
-                    yLabel.text = "E_y:"
-                    thetaLabel.text = "E_θ:"
-                }
             }
         }
         group.selectToggle(planned)

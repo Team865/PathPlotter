@@ -46,7 +46,7 @@ class PathPlotter {
     private val view = BorderPane().apply {
         top = menuBar
         center = canvasContainer
-        bottom = VBox(controlBar.container, infoBar.container)
+        bottom = VBox(controlBar.top, infoBar.container)
     }
 
     init {
@@ -102,7 +102,7 @@ class PathPlotter {
         }
     }
 
-    private val stopMenu = Menu("Transform Point(s) by Steps", null,
+    private val transformMenu = Menu("Transform Point(s) by Steps", null,
             transformItem("Rotate 1 degree counter-clockwise", combo(KeyCode.Q), 0.0, 0.0, 1.0, false),
             transformItem("Rotate 1 degree clockwise", combo(KeyCode.W), 0.0, 0.0, -1.0, false),
             transformItem("Move up 0.01 metres", combo(KeyCode.UP), 0.0, 0.01, 0.0, true),
@@ -115,7 +115,7 @@ class PathPlotter {
             transformItem("Move right-normal 0.01 metres", combo(KeyCode.RIGHT, shift = true), 0.0, -0.01, 0.0, false)
     )
 
-    private val pointMenu = Menu(
+    private val selectionMenu = Menu(
             "Selection",
             null,
             menuItem("Delete Point(s)", MDI_DELETE, combo(KeyCode.D)) {
@@ -130,7 +130,7 @@ class PathPlotter {
             menuItem("Transform Point(s)", MDI_CURSOR_MOVE, combo(KeyCode.T)) {
 
             },
-            stopMenu)
+            transformMenu)
 
     private val trajectoryMenu = Menu("Trajectory", null,
             menuItem("Start/Pause Simulation", MDI_PLAY, combo(KeyCode.SPACE)) { onSpacePressed() },
@@ -148,7 +148,7 @@ class PathPlotter {
         menuBar.menus.addAll(
                 fileMenu,
                 editMenu,
-                pointMenu,
+                selectionMenu,
                 trajectoryMenu,
                 dialogs.helpMenu
         )
@@ -281,7 +281,6 @@ class PathPlotter {
 
     private fun regenerate() {
 
-        @Suppress("UNUSED_VARIABLE")
         val time = measureNanoTime {
             path.regenerateAll()
         } / 1E6
@@ -289,6 +288,7 @@ class PathPlotter {
         infoBar.setDist(0.0, path.totalDist)
         infoBar.setTime(0.0, path.totalTime)
         infoBar.setCurve(0.0, 0.0, path.totalSumOfCurvature)
+        infoBar.setComputeTime(time)
 
         redrawScreen()
     }

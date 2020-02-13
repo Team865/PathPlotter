@@ -21,11 +21,11 @@ class Path {
     var totalSumOfCurvature = 0.0
     var totalDist = 0.0
 
-    var robotWidth = 0.8
-    var robotLength = 1.0
+    var robotWidth = 0.7
+    var robotLength = 0.8
 
-    var maxVelocity = 3.0
-    var maxAcceleration = 3.0
+    var maxVelocity = 2.1
+    var maxAcceleration = 2.8
 
     var optimizing = false
 
@@ -37,7 +37,7 @@ class Path {
         trajectoryList.clear()
         trajectoryList.add(TrajectoryParameterizer.timeParameterizeTrajectory(x, listOf(
                 DifferentialDriveKinematicsConstraint(
-                        DifferentialDriveKinematics(0.66),
+                        DifferentialDriveKinematics(0.701),
                         3.0
                 )
         ),

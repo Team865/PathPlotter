@@ -21,7 +21,7 @@ class InfoBar  {
     private val dist = label(MDI_RULER)
     private val curve = label(MDI_VECTOR_CURVE)
     private val vel = label(MDI_SPEEDOMETER)
-    private val nt = label(MDI_ACCESS_POINT)
+    private val compute = label(MDI_LAPTOP)
 
     val container = HBox()
 
@@ -30,8 +30,7 @@ class InfoBar  {
         setDist(0.0, 2.1)
         setVel(0.0, 0.0, 0.0, 0.0)
         setCurve(0.1, 0.1, 3.5)
-        nt.text = "Connected"
-        container.children.addAll(time, dist, vel, curve, nt)
+        container.children.addAll(time, dist, vel, curve, compute)
         container.spacing = 12.0
         container.padding = Insets(4.0, 12.0, 4.0, 12.0)
         container.style = "-fx-background-color: #eee"
@@ -39,6 +38,10 @@ class InfoBar  {
 
     fun setTime(current: Double, total: Double) {
         time.text = "${current.f2}/${total.f2}s"
+    }
+
+    fun setComputeTime(time: Double) {
+        compute.text = "${time.f2}ms"
     }
 
     fun setDist(current: Double, total: Double) {
