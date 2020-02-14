@@ -10,6 +10,7 @@ module pathplotter {
 
     requires ntcore.java;
     requires ntcore.jni;
+    requires org.json;
 
     exports ca.warp7.pathplotter;
     exports edu.wpi.first.hal;

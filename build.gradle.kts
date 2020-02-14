@@ -87,6 +87,7 @@ dependencies {
     implementation("org.openjfx:javafx-controls:13:win")
     implementation("org.kordamp.ikonli:ikonli-javafx:11.3.5")
     implementation("org.kordamp.ikonli:ikonli-materialdesign-pack:11.3.5")
+    implementation("org.json:json:20190722")
 
     testImplementation(kotlin("test"))
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-api", version = "5.6.0")

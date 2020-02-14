@@ -51,6 +51,7 @@ class InfoBar  {
         setCurve(0.1, 0.1, 3.5)
         container.children.addAll(time, dist, vel, curve, compute, robotStatusCont)
         container.spacing = 12.0
+        container.alignment = Pos.CENTER
         container.padding = Insets(4.0, 12.0, 4.0, 12.0)
         container.style = "-fx-background-color: #eee"
     }

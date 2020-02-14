@@ -3,6 +3,7 @@ package ca.warp7.pathplotter.ui
 import ca.warp7.pathplotter.lineTo
 import ca.warp7.pathplotter.normal
 import ca.warp7.pathplotter.state.Constants
+import ca.warp7.pathplotter.state.PixelReference
 import ca.warp7.pathplotter.translation
 import ca.warp7.pathplotter.util.linearInterpolate
 import ca.warp7.pathplotter.vertex

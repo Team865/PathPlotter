@@ -4,6 +4,7 @@ import ca.warp7.pathplotter.fx.combo
 import ca.warp7.pathplotter.fx.menuItem
 import ca.warp7.pathplotter.remote.RemoteListener
 import ca.warp7.pathplotter.state.Constants
+import ca.warp7.pathplotter.state.PixelReference
 import ca.warp7.pathplotter.state.getDefaultPath
 import ca.warp7.pathplotter.ui.*
 import edu.wpi.first.wpilibj.geometry.Pose2d
@@ -312,7 +313,7 @@ class PathPlotter {
         val offsetX = (canvas.width - w) / 2.0
         val offsetY = (canvas.height - h) / 2.0
 
-        ref.set(w, h, offsetX, offsetY, Constants.kFieldSize * 2, Constants.kFieldSize)
+        ref.set(w, h, offsetX, offsetY)
 
         gc.fill = Color.WHITE
         gc.fillRect(0.0, 0.0, canvas.width, canvas.height)
