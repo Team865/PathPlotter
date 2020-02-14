@@ -1,15 +1,12 @@
 @file:Suppress("UnusedImport", "SpellCheckingInspection")
 
 import org.gradle.internal.os.OperatingSystem
-import org.javamodularity.moduleplugin.extensions.TestModuleOptions
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     java
     application
     kotlin("jvm") version "1.3.60"
-    id("org.javamodularity.moduleplugin") version "1.6.0"
-    id("org.openjfx.javafxplugin") version "0.0.9-SNAPSHOT"
     id("org.beryx.jlink") version "2.17.0"
 }
 
@@ -24,11 +21,7 @@ group = "pathplotter"
 version = "2020.2.0"
 
 application {
-    mainClassName = "pathplotter/ca.warp7.pathplotter.MainKt"
-}
-
-javafx {
-    modules("javafx.controls")
+    mainClassName = "ca.warp7.pathplotter.MainKt"
 }
 
 tasks.withType<KotlinCompile> {
@@ -42,9 +35,6 @@ tasks.withType<KotlinCompile> {
 }
 
 tasks.withType<Test> {
-    extensions.configure(TestModuleOptions::class.java) {
-        runOnClasspath = true
-    }
     useJUnitPlatform {
     }
 }
@@ -66,6 +56,20 @@ fun desktopOS(): String {
 
 val platform =  desktopOS() + desktopArch()
 
+tasks.compileJava {
+    doFirst {
+        options.compilerArgs.addAll(listOf(
+                "--module-path", classpath.asPath,
+                "--add-modules", "pathplotter"
+        ))
+        classpath = files()
+    }
+}
+
+tasks.jar {
+    this.duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
 dependencies {
     implementation(kotlin("stdlib"))
 
@@ -73,6 +77,10 @@ dependencies {
     implementation("edu.wpi.first.wpiutil:wpiutil-java:$wpilibVersion")
     implementation("edu.wpi.first.ntcore:ntcore-java:$wpilibVersion")
     implementation("edu.wpi.first.ntcore:ntcore-jni:$wpilibVersion:$platform")
+
+    implementation("org.openjfx:javafx-base:13:win")
+    implementation("org.openjfx:javafx-graphics:13:win")
+    implementation("org.openjfx:javafx-controls:13:win")
     implementation("org.kordamp.ikonli:ikonli-javafx:11.3.5")
     implementation("org.kordamp.ikonli:ikonli-materialdesign-pack:11.3.5")
 
@@ -85,5 +93,5 @@ dependencies {
 
 jlink {
     options.addAll("--strip-debug", "--no-header-files",
-            "--no-man-pages", "--strip-native-commands")
+            "--no-man-pages")
 }
