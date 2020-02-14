@@ -2,6 +2,7 @@ package ca.warp7.pathplotter
 
 import ca.warp7.pathplotter.fx.combo
 import ca.warp7.pathplotter.fx.menuItem
+import ca.warp7.pathplotter.remote.RemoteListener
 import ca.warp7.pathplotter.state.Constants
 import ca.warp7.pathplotter.state.getDefaultPath
 import ca.warp7.pathplotter.ui.*
@@ -49,7 +50,12 @@ class PathPlotter {
         bottom = VBox(controlBar.top, infoBar.container)
     }
 
+    private val remoteListener = RemoteListener()
+
     init {
+        remoteListener.addConnectionListener {
+            infoBar.setConnection(it)
+        }
         menuBar.isUseSystemMenuBar = true
         canvas.isFocusTraversable = true
         canvas.addEventFilter(MouseEvent.MOUSE_CLICKED) { canvas.requestFocus() }
@@ -71,7 +77,6 @@ class PathPlotter {
 
     private val fileMenu = Menu("File", null,
             menuItem("New/Open Trajectory", MDI_FOLDER, combo(KeyCode.N, control = true)) {
-                PathWizard(stage).show()
             },
             menuItem("Save as", MDI_CONTENT_SAVE, combo(KeyCode.S, control = true)) {
 

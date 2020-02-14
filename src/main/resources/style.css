@@ -65,11 +65,11 @@
 }
 
 .slider {
-    -fx-background-color: white;
+    -fx-background-color: transparent;
 }
 
 .slider .track {
-    -fx-background-color: white, white, #ddd;
+    -fx-background-color: transparent, transparent, #ccc;
 }
 
 .slider .thumb {

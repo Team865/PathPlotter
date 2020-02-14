@@ -16,7 +16,7 @@ class ControlBar {
 
     private val timeSlider = Slider().apply {
         this.value = 0.0
-        this.prefWidth = 360.0
+        this.prefWidth = 300.0
         this.max = 1.0
         this.min = 0.0
     }
@@ -47,26 +47,14 @@ class ControlBar {
 
     val top = HBox().apply {
         spacing = 8.0
-        padding = Insets(2.0, 8.0, 2.0, 8.0)
-        this.style = "-fx-background-color: white"
+        padding = Insets(4.0, 8.0, 4.0, 8.0)
+        this.style = "-fx-background-color: #eee"
         alignment = Pos.CENTER
         this.children.addAll(timeSlider,
                 planned, actual, error,
                 xLabel, x,
                 yLabel, y,
                 thetaLabel, theta
-        )
-    }
-
-    val bottom = HBox().apply {
-        spacing = 8.0
-        padding = Insets(2.0, 8.0, 2.0, 8.0)
-        this.style = "-fx-background-color: white"
-        alignment = Pos.CENTER
-        children.addAll(
-                CheckBox("Invert Field"),
-                Button("Start/Pause Simulation"),
-                Button("Stop Simulation")
         )
     }
 
