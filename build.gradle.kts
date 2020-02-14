@@ -21,7 +21,7 @@ group = "pathplotter"
 version = "2020.2.0"
 
 application {
-    mainClassName = "ca.warp7.pathplotter.MainKt"
+    mainClassName = "ca.warp7.pathplotter.Main"
 }
 
 tasks.withType<KotlinCompile> {
@@ -32,6 +32,10 @@ tasks.withType<KotlinCompile> {
         )
         kotlinOptions.jvmTarget = "11"
     }
+}
+
+tasks.compileKotlin {
+    destinationDir = tasks.compileJava.get().destinationDir
 }
 
 tasks.withType<Test> {
@@ -92,6 +96,9 @@ dependencies {
 }
 
 jlink {
+    this.launcher {
+        this.jvmArgs = listOf("--add-reads", "pathplotter.merged.module=pathplotter")
+    }
     options.addAll("--strip-debug", "--no-header-files",
             "--no-man-pages")
 }

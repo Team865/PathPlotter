@@ -38,7 +38,8 @@ Max Heap Size: ${Runtime.getRuntime().maxMemory() / 1024 / 1024}Mb"""
     }
 
     private val githubButton = menuItem("Show Project on GitHub", MaterialDesign.MDI_GITHUB_CIRCLE, null) {
-        PPApplication.host?.showDocument("https://github.com/Team865/PathPlotter/")
+        PathPlotterApplication.getHostServicesInstance()
+                .showDocument("https://github.com/Team865/PathPlotter/")
     }
 
     val helpMenu = Menu("Help", null, shortcutButton, githubButton, aboutButton)
