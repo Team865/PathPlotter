@@ -16,7 +16,7 @@ class ControlBar {
 
     private val timeSlider = Slider().apply {
         this.value = 0.0
-        this.prefWidth = 300.0
+        this.prefWidth = 360.0
         this.max = 1.0
         this.min = 0.0
     }

@@ -99,3 +99,8 @@
 .text-field:focused {
     -fx-border-color: #5a8ade;
 }
+
+.radio-button {
+    -fx-focus-color: #5a8ade;
+    -fx-faint-focus-color: transparent;
+}

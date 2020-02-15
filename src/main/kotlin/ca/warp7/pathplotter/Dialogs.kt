@@ -2,6 +2,7 @@ package ca.warp7.pathplotter
 
 import ca.warp7.pathplotter.fx.combo
 import ca.warp7.pathplotter.fx.menuItem
+import ca.warp7.pathplotter.state.FieldConfig
 import javafx.scene.control.ButtonType
 import javafx.scene.control.Dialog
 import javafx.scene.control.Menu
@@ -16,13 +17,13 @@ class Dialogs(val stage: Stage) {
         val dialog = Dialog<ButtonType>()
         dialog.title = "About PathPlotter"
         dialog.contentText = """PathPlotter version 2020.2.0
-Copyright (c) 2019,2020 Team 865 WARP7
+Copyright (c) 2019, 2020 Team 865 WARP7
 Licensed under MIT
 OS:  ${System.getProperty("os.name")} ${System.getProperty("os.arch")}
 Java Runtime: ${System.getProperty("java.vm.name")} ${System.getProperty("java.vm.version")}
 JavaFX Build: ${System.getProperty("javafx.runtime.version")}
 Kotlin Build: ${KotlinVersion.CURRENT}
-Max Heap Size: ${Runtime.getRuntime().maxMemory() / 1024 / 1024}Mb"""
+Max Heap Size: ${Runtime.getRuntime().maxMemory() / (1024 * 1024)}Mb"""
         dialog.dialogPane.buttonTypes.add(ButtonType.OK)
         dialog.initOwner(stage)
         dialog.show()
@@ -45,5 +46,9 @@ Max Heap Size: ${Runtime.getRuntime().maxMemory() / 1024 / 1024}Mb"""
         dialog.dialogPane.buttonTypes.add(ButtonType.OK)
         dialog.initOwner(stage)
         dialog.show()
+    }
+
+    fun newFieldConfig(): FieldConfig {
+        return FieldConfig.DEFAULT
     }
 }

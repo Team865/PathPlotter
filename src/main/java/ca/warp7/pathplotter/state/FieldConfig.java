@@ -129,6 +129,6 @@ public class FieldConfig {
                 '}';
     }
 
-    private static final FieldConfig DEFAULT = new FieldConfig("None", null,
+    public static final FieldConfig DEFAULT = new FieldConfig("None", null,
             0, 0, 0, 0, 0, 0);
 }

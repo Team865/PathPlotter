@@ -16,12 +16,10 @@ import javafx.beans.value.ChangeListener
 import javafx.scene.Scene
 import javafx.scene.canvas.Canvas
 import javafx.scene.canvas.GraphicsContext
-import javafx.scene.control.Menu
-import javafx.scene.control.MenuBar
-import javafx.scene.control.MenuItem
-import javafx.scene.control.SeparatorMenuItem
+import javafx.scene.control.*
 import javafx.scene.image.Image
 import javafx.scene.input.KeyCode
+import javafx.scene.input.KeyCodeCombination
 import javafx.scene.input.KeyCombination
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.BorderPane
@@ -29,9 +27,10 @@ import javafx.scene.layout.Pane
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
 import javafx.stage.Stage
+import org.kordamp.ikonli.javafx.FontIcon
 import org.kordamp.ikonli.materialdesign.MaterialDesign.*
 import kotlin.math.min
-import kotlin.system.measureNanoTime
+import kotlin.system.exitProcess
 
 class PathPlotter {
 
@@ -65,6 +64,7 @@ class PathPlotter {
         stage.title = "PathPlotter 2020.2.0"
         stage.width = 1000.0
         stage.height = 600.0
+        stage.fullScreenExitKeyCombination = KeyCodeCombination(KeyCode.F11)
         stage.icons.add(Image(PathPlotter::class.java.getResourceAsStream("/icon.png")))
     }
 
@@ -72,32 +72,24 @@ class PathPlotter {
     private val gc: GraphicsContext = canvas.graphicsContext2D
 
     private var controlDown = false
+    private var isFullScreen = false
 
     private val path = getDefaultPath()
     private val ref = PixelReference()
 
     private val fileMenu = Menu("File", null,
-            menuItem("New/Open Trajectory", MDI_FOLDER, combo(KeyCode.N, control = true)) {
+            menuItem("Configure Field Background", MDI_IMAGE, combo(KeyCode.F, control = true)) {
+                dialogs.newFieldConfig()
             },
-            menuItem("Save as", MDI_CONTENT_SAVE, combo(KeyCode.S, control = true)) {
-
+            menuItem("Robot Parameters", MDI_TUNE, combo(KeyCode.COMMA, control = true)) {
+                dialogs.newFieldConfig()
             },
-            menuItem("Configure Path", MDI_SETTINGS, combo(KeyCode.COMMA, control = true)) {
-                //                config.showSettings(stage)
-//                regenerate()
-            }
-    )
-
-    private val editMenu = Menu(
-            "Path",
-            null,
-            MenuItem("Insert Spline Control Point"),
-            MenuItem("Insert Reverse Direction"),
-            MenuItem("Insert Quick Turn"),
-            MenuItem("Reverse Point(s)"),
-            menuItem("Select All", null, combo(KeyCode.A, control = true)) {
-                for (cp in path.controlPoints) cp.isSelected = true
-                redrawScreen()
+            SeparatorMenuItem(),
+            menuItem("Open Path", MDI_FOLDER_OUTLINE, null) {},
+            menuItem("Open Playback", MDI_PLAY_BOX_OUTLINE, null) {},
+            SeparatorMenuItem(),
+            menuItem("Exit", null, null) {
+                exitProcess(0)
             }
     )
 
@@ -121,41 +113,71 @@ class PathPlotter {
             transformItem("Move right-normal 0.01 metres", combo(KeyCode.RIGHT, shift = true), 0.0, -0.01, 0.0, false)
     )
 
-    private val selectionMenu = Menu(
-            "Selection",
+    private val pathMenu = Menu(
+            "Path",
             null,
+            menuItem("Insert Control Point", MDI_PLUS, combo(KeyCode.N)) {
+
+            },
+            menuItem("Insert Reverse Direction", MDI_SWAP_VERTICAL, combo(KeyCode.R, control = true)) {
+
+            },
+            menuItem("Insert Quick Turn", MDI_SYNC, combo(KeyCode.T, control = true)) {
+
+            },
+            SeparatorMenuItem(),
+            menuItem("Select All", null, combo(KeyCode.A, control = true)) {
+                for (cp in path.controlPoints) cp.isSelected = true
+                redrawScreen()
+            },
             menuItem("Delete Point(s)", MDI_DELETE, combo(KeyCode.D)) {
                 if (path.controlPoints.count { !it.isSelected } >= 2) {
                     path.controlPoints.removeIf { it.isSelected }
                     regenerate()
                 }
             },
-            menuItem("Edit Point(s)", MDI_PEN, combo(KeyCode.E)) {
-
-            },
             menuItem("Transform Point(s)", MDI_CURSOR_MOVE, combo(KeyCode.T)) {
 
             },
-            transformMenu)
+            transformMenu,
+            SeparatorMenuItem(),
+            menuItem("Optimize Path", MDI_MATRIX, null) {
+
+            }
+    )
+
+    private val constraintsMenu = Menu("Timing Constraints", FontIcon.of(MDI_GAUGE, 15))
 
     private val trajectoryMenu = Menu("Trajectory", null,
-            menuItem("Start/Pause Simulation", MDI_PLAY, combo(KeyCode.SPACE)) { onSpacePressed() },
-            menuItem("Stop Simulation", MDI_STOP, combo(KeyCode.DIGIT0)) { stopSimulation() },
-            menuItem("Graphs", MDI_CHART_LINE, combo(KeyCode.G, control = true)) { showGraphs() },
-            SeparatorMenuItem()
+            menuItem("Start/Pause Playback", MDI_PLAY, combo(KeyCode.SPACE)) { onSpacePressed() },
+            menuItem("Stop Playback", MDI_STOP, combo(KeyCode.DIGIT0)) { stopSimulation() },
+            menuItem("Timing Graph", MDI_CHART_LINE, combo(KeyCode.G, control = true)) { showGraphs() },
+            SeparatorMenuItem(),
+            menuItem("Start Live Recording", MDI_RECORD, null) {},
+            SeparatorMenuItem(),
+            constraintsMenu
+    )
+
+    private val viewMenu = Menu("View", null,
+            CheckMenuItem("Curvature Gradient").apply { isSelected = true },
+            CheckMenuItem("Dual Offset Paths").apply { isSelected = true },
+            menuItem("Toggle Fullscreen", null, combo(KeyCode.F11)) {
+                isFullScreen = !isFullScreen
+                stage.isFullScreen = isFullScreen
+            }
     )
 
     init {
         for (handler in constraintHandlers) {
-            trajectoryMenu.items.add(MenuItem(handler.getName()).apply {
+            constraintsMenu.items.add(MenuItem(handler.getName()).apply {
                 this.setOnAction { handler.editConstraint(stage) }
             })
         }
         menuBar.menus.addAll(
                 fileMenu,
-                editMenu,
-                selectionMenu,
+                pathMenu,
                 trajectoryMenu,
+                viewMenu,
                 dialogs.helpMenu
         )
         canvas.setOnMousePressed {
@@ -287,14 +309,11 @@ class PathPlotter {
 
     private fun regenerate() {
 
-        val time = measureNanoTime {
-            path.regenerateAll()
-        } / 1E6
+        path.regenerateAll()
 
         infoBar.setDist(0.0, path.totalDist)
         infoBar.setTime(0.0, path.totalTime)
         infoBar.setCurve(0.0, 0.0, path.totalSumOfCurvature)
-        infoBar.setComputeTime(time)
 
         redrawScreen()
     }
