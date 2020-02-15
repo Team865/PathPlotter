@@ -5,12 +5,11 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics
 import edu.wpi.first.wpilibj.trajectory.Trajectory
 import edu.wpi.first.wpilibj.trajectory.TrajectoryParameterizer
 import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveKinematicsConstraint
-import javafx.scene.image.Image
 
 class Path {
     var useFeaturesNotInWPILib = false
 
-    var background = Image(Path::class.java.getResourceAsStream("/2020-Field.png"))
+    var fieldConfig = FieldConfig.fromResources("/2020-infiniterecharge.json")!!
 
     val controlPoints: MutableList<ControlPoint> = ArrayList()
 

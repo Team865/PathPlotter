@@ -300,12 +300,13 @@ class PathPlotter {
     }
 
     private fun redrawScreen() {
-        val bg = path.background
+        val bg = path.fieldConfig.image
         val imageWidthToHeight = bg.width / bg.height
 
         var w = canvas.width - 8
         var h = canvas.height - 8
 
+        // fit the image onto the canvas, preserving the ratio
         w = min(w, h * imageWidthToHeight)
         h = min(w * imageWidthToHeight, w / imageWidthToHeight)
         w = h * imageWidthToHeight
@@ -313,7 +314,7 @@ class PathPlotter {
         val offsetX = (canvas.width - w) / 2.0
         val offsetY = (canvas.height - h) / 2.0
 
-        ref.set(w, h, offsetX, offsetY)
+        ref.set(path.fieldConfig, w, h, offsetX, offsetY)
 
         gc.fill = Color.WHITE
         gc.fillRect(0.0, 0.0, canvas.width, canvas.height)

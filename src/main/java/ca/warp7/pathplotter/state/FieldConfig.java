@@ -76,19 +76,21 @@ public class FieldConfig {
             var data = Files.readString(Path.of(FieldConfig.class.getResource(resPath).toURI()));
             var json = new JSONObject(data);
             var fc = json.getJSONObject("field-corners");
+            var image = new Image(FieldConfig.class
+                    .getResourceAsStream("/" + json.getString("field-image")));
             return new FieldConfig(
                     json.getString("game"),
-                    new Image(FieldConfig.class.getResourceAsStream(json.getString("field_image"))),
+                    image,
                     fc.getJSONArray("top-left").getInt(1),
                     fc.getJSONArray("bottom-right").getInt(0),
-                    fc.getJSONArray("top-left").getInt(0),
                     fc.getJSONArray("bottom-right").getInt(1),
+                    fc.getJSONArray("top-left").getInt(0),
                     json.getJSONArray("field-size").getDouble(0) * 0.3048,
                     json.getJSONArray("field-size").getDouble(1) * 0.3048
             );
         } catch (IOException | URISyntaxException e) {
             e.printStackTrace();
-            return null;
+            return DEFAULT;
         }
     }
 
@@ -99,17 +101,34 @@ public class FieldConfig {
             var fc = json.getJSONObject("field-corners");
             return new FieldConfig(
                     json.getString("game"),
-                    new Image(new FileInputStream(json.getString("field_image"))),
+                    new Image(new FileInputStream(json.getString("field-image"))),
                     fc.getJSONArray("top-left").getInt(1),
                     fc.getJSONArray("bottom-right").getInt(0),
-                    fc.getJSONArray("top-left").getInt(0),
                     fc.getJSONArray("bottom-right").getInt(1),
+                    fc.getJSONArray("top-left").getInt(0),
                     json.getJSONArray("field-size").getDouble(0) * 0.3048,
                     json.getJSONArray("field-size").getDouble(1) * 0.3048
             );
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
+            return DEFAULT;
         }
     }
+
+    @Override
+    public String toString() {
+        return "FieldConfig{" +
+                "name='" + name + '\'' +
+                ", image=" + image +
+                ", topPx=" + topPx +
+                ", rightPx=" + rightPx +
+                ", bottomPx=" + bottomPx +
+                ", leftPx=" + leftPx +
+                ", fieldLengthMetres=" + fieldLengthMetres +
+                ", fieldWidthMetres=" + fieldWidthMetres +
+                '}';
+    }
+
+    private static final FieldConfig DEFAULT = new FieldConfig("None", null,
+            0, 0, 0, 0, 0, 0);
 }
