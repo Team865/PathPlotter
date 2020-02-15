@@ -11,15 +11,6 @@ import javafx.stage.Stage
 import org.kordamp.ikonli.materialdesign.MaterialDesign
 
 class Dialogs(val stage: Stage) {
-    private val shortcutButton = menuItem("Keyboard Shortcuts", MaterialDesign.MDI_KEYBOARD, combo(KeyCode.F1)) {
-        val dialog = Dialog<ButtonType>()
-        dialog.title = "Shortcuts"
-        dialog.contentText = Dialogs::class.java.getResourceAsStream("/docs.txt")
-                .bufferedReader().readText()
-        dialog.dialogPane.buttonTypes.add(ButtonType.OK)
-        dialog.initOwner(stage)
-        dialog.show()
-    }
 
     private val aboutButton = menuItem("About", MaterialDesign.MDI_INFORMATION_OUTLINE, combo(KeyCode.F1, shift = true)) {
         val dialog = Dialog<ButtonType>()
@@ -42,7 +33,7 @@ Max Heap Size: ${Runtime.getRuntime().maxMemory() / 1024 / 1024}Mb"""
                 .showDocument("https://github.com/Team865/PathPlotter/")
     }
 
-    val helpMenu = Menu("Help", null, shortcutButton, githubButton, aboutButton)
+    val helpMenu = Menu("Help", null, githubButton, aboutButton)
 
     fun showTextBox(title: String, content: String) {
         val dialog = Dialog<ButtonType>()
