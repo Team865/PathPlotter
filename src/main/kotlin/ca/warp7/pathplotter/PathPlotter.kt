@@ -75,13 +75,13 @@ class PathPlotter {
     private var controlDown = false
     private var isFullScreen = false
 
-    private val path = getDefaultPath()
+    private val model = getDefaultPath()
     private val ref = PixelReference()
 
     private val fileMenu = Menu("File", null,
             menuItem("Configure Field Background", MDI_IMAGE, combo(KeyCode.F, control = true)) {
                 val fc = dialogs.newFieldConfig()
-                path.fieldConfig = fc
+                model.fieldConfig = fc
                 redrawScreen()
             },
             menuItem("Robot Parameters", MDI_TUNE, combo(KeyCode.COMMA, control = true)) {
@@ -119,14 +119,14 @@ class PathPlotter {
             "Path",
             null,
             menuItem("Insert Control Point", MDI_PLUS, combo(KeyCode.N)) {
-                path.controlPoints.withIndex().firstOrNull { it.value.isSelected }?.let { cp ->
+                model.controlPoints.withIndex().firstOrNull { it.value.isSelected }?.let { cp ->
                     val ps = cp.value.pose
                     cp.value.isSelected = false
                     val transform = ps.rotation.translation().times(1.5)
                     val newPose = Pose2d(ps.translation + transform, ps.rotation)
                     val newCp = ControlPoint(newPose)
                     newCp.isSelected = true
-                    path.controlPoints.add(cp.index + 1, newCp)
+                    model.controlPoints.add(cp.index + 1, newCp)
                 }
                 regenerate()
             },
@@ -138,12 +138,12 @@ class PathPlotter {
             },
             SeparatorMenuItem(),
             menuItem("Select All", null, combo(KeyCode.A, control = true)) {
-                for (cp in path.controlPoints) cp.isSelected = true
+                for (cp in model.controlPoints) cp.isSelected = true
                 redrawScreen()
             },
             menuItem("Delete Point(s)", MDI_DELETE, combo(KeyCode.D)) {
-                if (path.controlPoints.count { !it.isSelected } >= 2) {
-                    path.controlPoints.removeIf { it.isSelected }
+                if (model.controlPoints.count { !it.isSelected } >= 2) {
+                    model.controlPoints.removeIf { it.isSelected }
                     regenerate()
                 }
             },
@@ -218,7 +218,7 @@ class PathPlotter {
 
         isDraggingAngle = false
 
-        for (controlPoint in path.controlPoints) {
+        for (controlPoint in model.controlPoints) {
 
             val posInRange = controlPoint.pose.translation
                     .getDistance(mouseOnField) < Constants.kControlPointCircleSize
@@ -259,7 +259,7 @@ class PathPlotter {
     private fun drag(x: Double, y: Double) {
         if (simulating) return
         val mouseOnField = ref.inverseTransform(Translation2d(x, y))
-        for (controlPoint in path.controlPoints) {
+        for (controlPoint in model.controlPoints) {
             if (controlPoint.isSelected) {
                 if (isDraggingAngle) {
                     controlPoint.pose = Pose2d(controlPoint.pose.translation,
@@ -273,7 +273,7 @@ class PathPlotter {
         }
     }
 
-    private val graphWindow = GraphWindow(stage, path)
+    private val graphWindow = GraphWindow(stage, model)
 
     private fun showGraphs() {
         graphWindow.show()
@@ -284,13 +284,13 @@ class PathPlotter {
         val rotation = Rotation2d.fromDegrees(theta)
         var offset = delta
         if (!fieldRelative) {
-            for (controlPoint in path.controlPoints) {
+            for (controlPoint in model.controlPoints) {
                 if (controlPoint.isSelected) {
                     offset = delta.rotateBy(controlPoint.pose.rotation)
                 }
             }
         }
-        for (controlPoint in path.controlPoints) {
+        for (controlPoint in model.controlPoints) {
             if (controlPoint.isSelected) {
                 val oldPose = controlPoint.pose
                 val newPose = Pose2d(snap(oldPose.translation + offset), oldPose.rotation + rotation)
@@ -317,18 +317,18 @@ class PathPlotter {
 
     private fun regenerate() {
 
-        path.regenerateAll()
+        model.regenerateAll()
 
-        infoBar.setDist(path.totalDist)
-        infoBar.setTime(0.0, path.totalTime)
-        infoBar.setCurve(0.0, 0.0, path.totalSumOfCurvature)
-        controlBar.setTotalTime(path.totalTime)
+        infoBar.setDist(model.totalDist)
+        infoBar.setTime(0.0, model.totalTime)
+        infoBar.setCurve(0.0, 0.0, model.totalSumOfCurvature)
+        controlBar.setTotalTime(model.totalTime)
 
         redrawScreen()
     }
 
     private fun redrawScreen() {
-        val bg = path.fieldConfig.image
+        val bg = model.fieldConfig.image
         val imageWidthToHeight = bg.width / bg.height
 
         var w = canvas.width - 8
@@ -342,19 +342,19 @@ class PathPlotter {
         val offsetX = (canvas.width - w) / 2.0
         val offsetY = (canvas.height - h) / 2.0
 
-        ref.set(path.fieldConfig, w, h, offsetX, offsetY)
+        ref.set(model.fieldConfig, w, h, offsetX, offsetY)
 
         gc.fill = Color.WHITE
         gc.fillRect(0.0, 0.0, canvas.width, canvas.height)
         gc.drawImage(bg, offsetX, offsetY, w, h)
 
 
-        for ((index, trajectory) in path.trajectoryList.withIndex()) {
-            drawSplines(ref, trajectory, index % 2 == 1, gc, path.robotWidth, path.robotLength)
+        for ((index, trajectory) in model.trajectoryList.withIndex()) {
+            drawSplines(ref, trajectory, index % 2 == 1, gc, model.robotWidth, model.robotLength)
         }
         if (!simulating) {
-            val firstState = path.trajectoryList.first().states.first().poseMeters
-            drawRobot(ref, gc, path.robotWidth, path.robotLength, firstState)
+            val firstState = model.trajectoryList.first().states.first().poseMeters
+            drawRobot(ref, gc, model.robotWidth, model.robotLength, firstState)
             updateSelectedPointInfo()
         }
 
@@ -363,7 +363,7 @@ class PathPlotter {
     }
 
     private fun updateSelectedPointInfo() {
-        for (cp in path.controlPoints) {
+        for (cp in model.controlPoints) {
             if (cp.isSelected) {
                 controlBar.setPose(cp.pose)
                 return
@@ -374,7 +374,7 @@ class PathPlotter {
 
     private fun drawAllControlPoints() {
         if (simulating) return
-        for (controlPoint in path.controlPoints) {
+        for (controlPoint in model.controlPoints) {
             gc.stroke = when {
                 controlPoint.isSelected -> Color.rgb(0, 255, 255)
                 else -> Color.WHITE
@@ -434,14 +434,14 @@ class PathPlotter {
         }
 
         val t = simElapsed
-        if (t > path.totalTime) {
+        if (t > model.totalTime) {
             stopSimulation()
             return
         }
 
         var trackedTime = 0.0
-        var currentTrajectory = path.trajectoryList.first()
-        for (seg in path.trajectoryList) {
+        var currentTrajectory = model.trajectoryList.first()
+        for (seg in model.trajectoryList) {
             if ((trackedTime + seg.totalTimeSeconds) > t) {
                 currentTrajectory = seg
                 break
@@ -465,12 +465,12 @@ class PathPlotter {
         prevW = w
 
         infoBar.setVel(v, w, sample.accelerationMetersPerSecondSq, dwShim)
-        infoBar.setCurve(k, dkShim, path.totalSumOfCurvature)
+        infoBar.setCurve(k, dkShim, model.totalSumOfCurvature)
         controlBar.setPose(sample.poseMeters)
         controlBar.setTime(t)
-        infoBar.setTime(t, path.totalTime)
+        infoBar.setTime(t, model.totalTime)
 
-        drawRobot(ref, gc, path.robotWidth, path.robotLength, sample.poseMeters)
+        drawRobot(ref, gc, model.robotWidth, model.robotLength, sample.poseMeters)
         gc.stroke = Color.YELLOW
         drawArrowForPose(ref, gc, sample.poseMeters)
     }

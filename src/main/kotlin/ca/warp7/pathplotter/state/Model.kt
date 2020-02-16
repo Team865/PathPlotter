@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.trajectory.Trajectory
 import edu.wpi.first.wpilibj.trajectory.TrajectoryParameterizer
 import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveKinematicsConstraint
 
-class Path {
+class Model {
 
     var fieldConfig = FieldConfig.fromResources("/2020-infiniterecharge.json")!!
 

@@ -3,8 +3,8 @@ package ca.warp7.pathplotter.state
 import ca.warp7.pathplotter.degrees
 import edu.wpi.first.wpilibj.geometry.Pose2d
 
-fun getDefaultPath(): Path {
-    val path = Path()
+fun getDefaultPath(): Model {
+    val path = Model()
 
 
 
