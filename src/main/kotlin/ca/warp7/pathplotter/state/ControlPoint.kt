@@ -2,7 +2,7 @@ package ca.warp7.pathplotter.state
 
 import edu.wpi.first.wpilibj.geometry.Pose2d
 
-class ControlPoint(var pose: Pose2d, val index: Int) {
+class ControlPoint(var pose: Pose2d) {
     var isSelected = false
 
 
@@ -13,15 +13,12 @@ class ControlPoint(var pose: Pose2d, val index: Int) {
         other as ControlPoint
 
         if (pose != other.pose) return false
-        if (index != other.index) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = pose.hashCode()
-        result = 31 * result + index
-        return result
+        return pose.hashCode()
     }
 
 }

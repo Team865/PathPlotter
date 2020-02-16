@@ -4,6 +4,7 @@ import ca.warp7.pathplotter.fx.combo
 import ca.warp7.pathplotter.fx.menuItem
 import ca.warp7.pathplotter.remote.RemoteListener
 import ca.warp7.pathplotter.state.Constants
+import ca.warp7.pathplotter.state.ControlPoint
 import ca.warp7.pathplotter.state.PixelReference
 import ca.warp7.pathplotter.state.getDefaultPath
 import ca.warp7.pathplotter.ui.*
@@ -79,10 +80,11 @@ class PathPlotter {
 
     private val fileMenu = Menu("File", null,
             menuItem("Configure Field Background", MDI_IMAGE, combo(KeyCode.F, control = true)) {
-                dialogs.newFieldConfig()
+                val fc = dialogs.newFieldConfig()
+                path.fieldConfig = fc
+                redrawScreen()
             },
             menuItem("Robot Parameters", MDI_TUNE, combo(KeyCode.COMMA, control = true)) {
-                dialogs.newFieldConfig()
             },
             SeparatorMenuItem(),
             menuItem("Open Path", MDI_FOLDER_OUTLINE, null) {},
@@ -117,7 +119,16 @@ class PathPlotter {
             "Path",
             null,
             menuItem("Insert Control Point", MDI_PLUS, combo(KeyCode.N)) {
-
+                path.controlPoints.withIndex().firstOrNull { it.value.isSelected }?.let { cp ->
+                    val ps = cp.value.pose
+                    cp.value.isSelected = false
+                    val transform = ps.rotation.translation().times(1.5)
+                    val newPose = Pose2d(ps.translation + transform, ps.rotation)
+                    val newCp = ControlPoint(newPose)
+                    newCp.isSelected = true
+                    path.controlPoints.add(cp.index + 1, newCp)
+                }
+                regenerate()
             },
             menuItem("Insert Reverse Direction", MDI_SWAP_VERTICAL, combo(KeyCode.R, control = true)) {
 
@@ -189,12 +200,12 @@ class PathPlotter {
             it.consume()
         }
         stage.scene.setOnKeyPressed {
-            if (it.code == KeyCode.CONTROL) {
+            if (it.isShortcutDown) {
                 controlDown = true
             }
         }
         stage.scene.setOnKeyReleased {
-            if (it.code == KeyCode.CONTROL) {
+            if (!it.isShortcutDown) {
                 controlDown = false
             }
         }

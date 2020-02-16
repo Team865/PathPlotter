@@ -3,9 +3,10 @@ package ca.warp7.pathplotter.state;
 import javafx.scene.image.Image;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -73,8 +74,17 @@ public class FieldConfig {
 
     public static FieldConfig fromResources(String resPath) {
         try {
-            var data = Files.readString(Path.of(FieldConfig.class.getResource(resPath).toURI()));
-            var json = new JSONObject(data);
+            var input = FieldConfig.class.getResourceAsStream(resPath);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+
+            StringBuilder result = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                result.append(line);
+                result.append("\n");
+            }
+
+            var json = new JSONObject(result.toString());
             var fc = json.getJSONObject("field-corners");
             var image = new Image(FieldConfig.class
                     .getResourceAsStream("/" + json.getString("field-image")));
@@ -88,7 +98,7 @@ public class FieldConfig {
                     json.getJSONArray("field-size").getDouble(0) * 0.3048,
                     json.getJSONArray("field-size").getDouble(1) * 0.3048
             );
-        } catch (IOException | URISyntaxException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             return DEFAULT;
         }

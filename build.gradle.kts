@@ -8,6 +8,7 @@ plugins {
     application
     kotlin("jvm") version "1.3.60"
     id("org.beryx.jlink") version "2.17.0"
+    id("com.github.gmazzo.buildconfig") version "1.6.2"
 }
 
 repositories {
@@ -19,6 +20,11 @@ repositories {
 
 group = "pathplotter"
 version = "2020.2.0"
+
+buildConfig {
+    packageName("ca.warp7.pathplotter")
+    buildConfigField("String", "kVersion", "\"${version}\"")
+}
 
 application {
     mainClassName = "ca.warp7.pathplotter.Main"
@@ -89,7 +95,6 @@ dependencies {
     implementation("org.kordamp.ikonli:ikonli-materialdesign-pack:11.3.5")
     implementation("org.json:json:20190722")
 
-    testImplementation(kotlin("test"))
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-api", version = "5.6.0")
 
     testRuntimeOnly(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = "5.6.0")
