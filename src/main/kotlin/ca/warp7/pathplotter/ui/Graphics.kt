@@ -1,12 +1,11 @@
 package ca.warp7.pathplotter.ui
 
-import ca.warp7.pathplotter.lineTo
 import ca.warp7.pathplotter.normal
+import ca.warp7.pathplotter.remote.MeasuredState
 import ca.warp7.pathplotter.state.Constants
 import ca.warp7.pathplotter.state.PixelReference
 import ca.warp7.pathplotter.translation
 import ca.warp7.pathplotter.util.linearInterpolate
-import ca.warp7.pathplotter.vertex
 import edu.wpi.first.wpilibj.geometry.Pose2d
 import edu.wpi.first.wpilibj.geometry.Rotation2d
 import edu.wpi.first.wpilibj.geometry.Translation2d
@@ -129,6 +128,60 @@ fun drawSplines(
     }
 }
 
+fun drawMeasuredStates(
+        ref: PixelReference,
+        states: List<MeasuredState>,
+        gc: GraphicsContext,
+        robotWidth: Double,
+        robotLength: Double
+) {
+
+    gc.lineWidth = 3.0
+
+    val s0 = states.first()
+    val t0 = s0.robotState.translation
+    var normal = s0.robotState.rotation.normal().translation() * robotWidth
+    var left = ref.transform(t0 - normal)
+    var right = ref.transform(t0 + normal)
+
+    gc.stroke = Color.WHITE
+    gc.fill = Color.WHITE
+
+    val a0 = ref.transform(t0) - ref.scale(Translation2d(robotLength,
+            robotWidth).rotateBy(s0.robotState.rotation))
+    val b0 = ref.transform(t0) + ref.scale(Translation2d(-robotLength,
+            robotWidth).rotateBy(s0.robotState.rotation))
+    gc.lineTo(a0, b0)
+    gc.lineTo(left, a0)
+    gc.lineTo(right, b0)
+
+    for (i in 1 until states.size) {
+        val s = states[i]
+        val t = s.robotState.translation
+        normal = s.robotState.rotation.normal().translation() * robotWidth
+        val newLeft = ref.transform(t - normal)
+        val newRight = ref.transform(t + normal)
+
+
+        gc.fillOval(newLeft.x - 1.5, newLeft.y - 1.5, 3.0, 3.0)
+        gc.fillOval(newRight.x - 1.5, newRight.y - 1.5, 3.0, 3.0)
+
+        left = newLeft
+        right = newRight
+    }
+
+    val s1 = states.last()
+    val t1 = s1.robotState.translation
+    val a1 = ref.transform(t1) - ref.scale(Translation2d(-robotLength,
+            robotWidth).rotateBy(s1.robotState.rotation))
+    val b1 = ref.transform(t1) + ref.scale(Translation2d(robotLength,
+            robotWidth).rotateBy(s1.robotState.rotation))
+    gc.lineTo(a1, b1)
+    gc.lineTo(left, a1)
+    gc.lineTo(right, b1)
+
+}
+
 fun drawRobot(
         ref: PixelReference,
         gc: GraphicsContext,
@@ -158,3 +211,6 @@ fun drawRobot(
     gc.stroke()
     gc.fill()
 }
+
+fun GraphicsContext.lineTo(a: Translation2d, b: Translation2d) = strokeLine(a.x, a.y, b.x, b.y)
+fun GraphicsContext.vertex(a: Translation2d) = lineTo(a.x, a.y)

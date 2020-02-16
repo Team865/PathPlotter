@@ -1,8 +1,14 @@
 package ca.warp7.pathplotter.state
 
 import ca.warp7.frc2020.lib.trajectory.QuinticHermiteSpline
+import ca.warp7.pathplotter.degrees
+import ca.warp7.pathplotter.remote.MeasuredState
+import edu.wpi.first.wpilibj.geometry.Pose2d
+import edu.wpi.first.wpilibj.geometry.Transform2d
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics
 import edu.wpi.first.wpilibj.trajectory.Trajectory
+import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig
+import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator
 import edu.wpi.first.wpilibj.trajectory.TrajectoryParameterizer
 import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveKinematicsConstraint
 
@@ -27,7 +33,22 @@ class Model {
 
     var optimizing = false
 
-    val trajectoryList = mutableListOf<Trajectory>()
+    val trajectoryList: MutableList<Trajectory> = ArrayList()
+
+    val measuredStates: MutableList<MeasuredState> = TrajectoryParameterizer.timeParameterizeTrajectory(
+            listOf(Pose2d(3.1, 1.7, 0.degrees),
+            Pose2d(5.85, 2.68, 0.degrees),
+            Pose2d(7.7, 2.68, 0.degrees)).zipWithNext { a, b -> QuinticHermiteSpline.fromPose(a, b) }
+                    .let { QuinticHermiteSpline.parameterize(it) },
+            listOf(DifferentialDriveKinematicsConstraint(
+                    DifferentialDriveKinematics(0.701),
+                    3.0
+            )), 0.0, 0.0,
+            maxVelocity, maxAcceleration, false).states.map {
+        MeasuredState(it.timeSeconds, it.poseMeters, Transform2d(), it.velocityMetersPerSecond,
+                it.velocityMetersPerSecond * it.curvatureRadPerMeter,
+                0.01,  0.01)
+    }.toMutableList()
 
     fun regenerateAll() {
         val paths = controlPoints.map { it.pose }
@@ -40,8 +61,8 @@ class Model {
                         3.0
                 )
         ),
-                0.0, 0.0, 3.0,
-                3.0, false))
+                0.0, 0.0, maxVelocity,
+                maxAcceleration, false))
         totalTime = trajectoryList.sumByDouble { it.totalTimeSeconds }
 
         totalDist = 0.0

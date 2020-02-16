@@ -9,8 +9,8 @@ fun getDefaultPath(): Model {
 
 
     path.apply {
-        maxVelocity = 3.0
-        maxAcceleration = 3.0
+        maxVelocity = 2.0
+        maxAcceleration = 1.0
         robotLength = 15 * 0.0254
         robotWidth = 13 * 0.0254
 //        wheelbaseRadius = 0.5

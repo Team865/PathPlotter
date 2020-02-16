@@ -352,6 +352,7 @@ class PathPlotter {
         for ((index, trajectory) in model.trajectoryList.withIndex()) {
             drawSplines(ref, trajectory, index % 2 == 1, gc, model.robotWidth, model.robotLength)
         }
+        drawMeasuredStates(ref, model.measuredStates, gc, model.robotWidth, model.robotLength)
         if (!simulating) {
             val firstState = model.trajectoryList.first().states.first().poseMeters
             drawRobot(ref, gc, model.robotWidth, model.robotLength, firstState)
