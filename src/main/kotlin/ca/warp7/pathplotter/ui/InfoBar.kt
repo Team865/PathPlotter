@@ -49,7 +49,7 @@ class InfoBar  {
 
     init {
         setTime(0.0, 3.5)
-        setDist(0.0, 2.1)
+        setDist(0.0)
         setVel(0.0, 0.0, 0.0, 0.0)
         setCurve(0.1, 0.1, 3.5)
         container.children.addAll(time, dist, vel, curve, robotStatusCont)
@@ -63,8 +63,8 @@ class InfoBar  {
         time.text = "${current.f2}/${total.f2}s"
     }
 
-    fun setDist(current: Double, total: Double) {
-        dist.text = "${current.f2}/${total.f2}m"
+    fun setDist( total: Double) {
+        dist.text = "${total.f2}m"
     }
 
     fun setCurve(k: Double, dk: Double, sdk2: Double) {
@@ -76,7 +76,9 @@ class InfoBar  {
     }
 
     private fun f(d: Double): String {
-        return abs(d).f2
+        val res = abs(d).f2
+        if (res.length > 4) return res.substring(0, 4)
+        return res
     }
 
     fun setConnection(conn: ConnectionNotification) {

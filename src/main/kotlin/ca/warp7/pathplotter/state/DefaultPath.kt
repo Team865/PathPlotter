@@ -18,8 +18,8 @@ fun getDefaultPath(): Path {
     }
     val pts = listOf(
             Pose2d(3.1, 1.7, 0.degrees),
-            Pose2d(6.15, 3.38, 0.degrees),
-            Pose2d(8.0, 3.38, 0.degrees)
+            Pose2d(5.85, 3.38, 0.degrees),
+            Pose2d(7.7, 3.38, 0.degrees)
     )
     path.controlPoints.addAll(pts.map { pose2d -> ControlPoint(pose2d) })
 //    path.segments.add(Segment().apply {

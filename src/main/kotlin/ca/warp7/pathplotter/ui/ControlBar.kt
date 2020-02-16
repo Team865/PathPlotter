@@ -16,7 +16,7 @@ class ControlBar {
 
     private val timeSlider = Slider().apply {
         this.value = 0.0
-        this.prefWidth = 360.0
+        this.prefWidth = 240.0
         this.max = 1.0
         this.min = 0.0
     }
@@ -25,6 +25,14 @@ class ControlBar {
         return TextField().apply {
             this.prefWidth = 50.0
         }
+    }
+
+    fun setTotalTime(t: Double) {
+        timeSlider.max = t
+    }
+
+    fun setTime(t: Double) {
+        timeSlider.value = t
     }
 
     private val x = textField()

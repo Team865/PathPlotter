@@ -102,7 +102,7 @@ class PathPlotter {
         }
     }
 
-    private val transformMenu = Menu("Transform Point(s) by Steps", null,
+    private val transformMenu = Menu("Transform Point(s)", FontIcon.of(MDI_CURSOR_MOVE, 15),
             transformItem("Rotate 1 degree counter-clockwise", combo(KeyCode.Q), 0.0, 0.0, 1.0, false),
             transformItem("Rotate 1 degree clockwise", combo(KeyCode.W), 0.0, 0.0, -1.0, false),
             transformItem("Move up 0.01 metres", combo(KeyCode.UP), 0.0, 0.01, 0.0, true),
@@ -147,9 +147,6 @@ class PathPlotter {
                     regenerate()
                 }
             },
-            menuItem("Transform Point(s)", MDI_CURSOR_MOVE, combo(KeyCode.T)) {
-
-            },
             transformMenu,
             SeparatorMenuItem(),
             menuItem("Optimize Path", MDI_MATRIX, null) {
@@ -161,7 +158,7 @@ class PathPlotter {
 
     private val trajectoryMenu = Menu("Trajectory", null,
             menuItem("Start/Pause Playback", MDI_PLAY, combo(KeyCode.SPACE)) { onSpacePressed() },
-            menuItem("Stop Playback", MDI_STOP, combo(KeyCode.DIGIT0)) { stopSimulation() },
+            menuItem("Stop Playback", MDI_STOP, combo(KeyCode.ESCAPE)) { stopSimulation() },
             menuItem("Timing Graph", MDI_CHART_LINE, combo(KeyCode.G, control = true)) { showGraphs() },
             SeparatorMenuItem(),
             menuItem("Start Live Recording", MDI_RECORD, null) {},
@@ -322,9 +319,10 @@ class PathPlotter {
 
         path.regenerateAll()
 
-        infoBar.setDist(0.0, path.totalDist)
+        infoBar.setDist(path.totalDist)
         infoBar.setTime(0.0, path.totalTime)
         infoBar.setCurve(0.0, 0.0, path.totalSumOfCurvature)
+        controlBar.setTotalTime(path.totalTime)
 
         redrawScreen()
     }
@@ -385,13 +383,9 @@ class PathPlotter {
         }
     }
 
-    var simFrameCount = 0
-
     private val simulationTimer = object : AnimationTimer() {
         override fun handle(now: Long) {
-            if (simFrameCount % 3 == 0) {
-                handleSimulation()
-            }
+            handleSimulation()
         }
     }
 
@@ -400,6 +394,8 @@ class PathPlotter {
     private var simElapsed = 0.0
     private var simElapsedChanged = false
     private var lastTime = 0.0
+    private var prevK = 0.0
+    private var prevW = 0.0
 
     private fun onSpacePressed() {
         if (simulating) {
@@ -407,8 +403,9 @@ class PathPlotter {
         } else {
             simulating = true
             simElapsed = 0.0
-            simFrameCount = 0
             simPaused = false
+            prevK = 0.0
+            prevW = 0.0
             lastTime = System.currentTimeMillis() / 1000.0
             redrawScreen()
             simulationTimer.start()
@@ -416,9 +413,11 @@ class PathPlotter {
     }
 
     private fun stopSimulation() {
+        if (!simulating) return
         simulating = false
         simPaused = false
         redrawScreen()
+        controlBar.setTime(0.0)
         simulationTimer.stop()
     }
 
@@ -426,36 +425,50 @@ class PathPlotter {
         val nt = System.currentTimeMillis() / 1000.0
         val dt = nt - lastTime
         lastTime = nt
+
         if (simPaused) {
             if (!simElapsedChanged) return
             simElapsedChanged = false
-        } else simElapsed += dt
+        } else {
+            simElapsed += dt
+        }
+
         val t = simElapsed
         if (t > path.totalTime) {
             stopSimulation()
             return
         }
+
         var trackedTime = 0.0
-        var simSeg = path.trajectoryList.first()
+        var currentTrajectory = path.trajectoryList.first()
         for (seg in path.trajectoryList) {
             if ((trackedTime + seg.totalTimeSeconds) > t) {
-                simSeg = seg
+                currentTrajectory = seg
                 break
             }
             trackedTime += seg.totalTimeSeconds
         }
         val relativeTime = t - trackedTime
 
-        val sample = simSeg.sample(relativeTime)
+        val sample = currentTrajectory.sample(relativeTime)
 
         redrawScreen()
 
         val v = sample.velocityMetersPerSecond
-        val w = v * sample.curvatureRadPerMeter
+        val k = sample.curvatureRadPerMeter
+        val w = v * k
 
-        infoBar.setVel(v, w, sample.accelerationMetersPerSecondSq, 0.0)
-        infoBar.setCurve(sample.curvatureRadPerMeter, 0.0, path.totalSumOfCurvature)
+        val dkShim = (k - prevK) / dt
+        val dwShim = (w - prevW) / dt
+
+        prevK = k
+        prevW = w
+
+        infoBar.setVel(v, w, sample.accelerationMetersPerSecondSq, dwShim)
+        infoBar.setCurve(k, dkShim, path.totalSumOfCurvature)
         controlBar.setPose(sample.poseMeters)
+        controlBar.setTime(t)
+        infoBar.setTime(t, path.totalTime)
 
         drawRobot(ref, gc, path.robotWidth, path.robotLength, sample.poseMeters)
         gc.stroke = Color.YELLOW

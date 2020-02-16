@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj.trajectory.TrajectoryParameterizer
 import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveKinematicsConstraint
 
 class Path {
-    var useFeaturesNotInWPILib = false
 
     var fieldConfig = FieldConfig.fromResources("/2020-infiniterecharge.json")!!
 
@@ -31,10 +30,11 @@ class Path {
     val trajectoryList = mutableListOf<Trajectory>()
 
     fun regenerateAll() {
-        val x = QuinticHermiteSpline.parameterize(controlPoints.map { it.pose }
-                .zipWithNext { a, b -> QuinticHermiteSpline.fromPose(a, b) })
+        val paths = controlPoints.map { it.pose }
+                .zipWithNext { a, b -> QuinticHermiteSpline.fromPose(a, b) }
+        val poseStates = QuinticHermiteSpline.parameterize(paths)
         trajectoryList.clear()
-        trajectoryList.add(TrajectoryParameterizer.timeParameterizeTrajectory(x, listOf(
+        trajectoryList.add(TrajectoryParameterizer.timeParameterizeTrajectory(poseStates, listOf(
                 DifferentialDriveKinematicsConstraint(
                         DifferentialDriveKinematics(0.701),
                         3.0
@@ -43,5 +43,15 @@ class Path {
                 0.0, 0.0, 3.0,
                 3.0, false))
         totalTime = trajectoryList.sumByDouble { it.totalTimeSeconds }
+
+        totalDist = 0.0
+        for (tr in trajectoryList) {
+            for (i in 0 until tr.states.size - 1) {
+                totalDist += tr.states[i].poseMeters.translation
+                        .getDistance(tr.states[i + 1].poseMeters.translation)
+            }
+        }
+
+        totalSumOfCurvature = QuinticHermiteSpline.sum_dCurvature_squared(paths)
     }
 }
