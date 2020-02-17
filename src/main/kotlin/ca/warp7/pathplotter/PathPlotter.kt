@@ -149,8 +149,7 @@ class PathPlotter {
     private val constraintsMenu = Menu("Timing Constraints", FontIcon.of(MDI_GAUGE, 15))
 
     private val trajectoryMenu = Menu("Trajectory", null,
-            menuItem("Start/Pause Playback", MDI_PLAY, combo(KeyCode.SPACE)) { onSpacePressed() },
-            menuItem("Stop Playback", MDI_STOP, combo(KeyCode.ESCAPE)) { stopPlayback() },
+            menuItem("Toggle Playback", MDI_PLAY, combo(KeyCode.SPACE)) { togglePlayback() },
             menuItem("Timing Graph", MDI_CHART_LINE, combo(KeyCode.G, control = true)) { showGraphs() },
             SeparatorMenuItem(),
             menuItem("Start Live Recording", MDI_RECORD, null) {},
@@ -334,7 +333,6 @@ class PathPlotter {
         model.regenerateAll()
 
         infoBar.setDist(model.totalDist)
-        infoBar.setTime(0.0, model.totalTime)
         infoBar.setCurve(0.0, 0.0, model.totalSumOfCurvature)
         controlBar.setTotalTime(model.totalTime)
 
@@ -365,12 +363,13 @@ class PathPlotter {
         for ((index, trajectory) in model.trajectoryList.withIndex()) {
             drawSplines(ref, trajectory, index % 2 == 1, gc, model.robotWidth, model.robotLength)
         }
+
+        drawPlaybackGraphics()
         if (!autoPlayback) {
             updateSelectedPointInfo()
             drawAllControlPoints()
         }
 
-        drawPlaybackGraphics()
         graphWindow.drawGraph()
     }
 
@@ -405,7 +404,7 @@ class PathPlotter {
 
             val elapsed = controlBar.getElapsedTime()
             val newElapsed = elapsed + dt
-            if (newElapsed > model.totalTime) {
+            if (newElapsed >= model.totalTime) {
                 stopPlayback()
             } else {
                 controlBar.setElapsedTime(newElapsed)
@@ -414,17 +413,15 @@ class PathPlotter {
     }
 
     private var autoPlayback = false
-    private var autoPlaybackPaused = false
-    private var simElapsed = 0.0
     private var lastTime = 0.0
 
-    private fun onSpacePressed() {
+    private fun togglePlayback() {
         if (autoPlayback) {
-            autoPlaybackPaused = !autoPlaybackPaused
+            autoPlayback = false
+            playbackTimer.stop()
+            redrawScreen()
         } else {
             autoPlayback = true
-            simElapsed = 0.0
-            autoPlaybackPaused = false
             lastTime = System.nanoTime() / 1E9
             redrawScreen()
             playbackTimer.start()
@@ -432,12 +429,12 @@ class PathPlotter {
     }
 
     private fun stopPlayback() {
-        if (!autoPlayback) return
+        if (!autoPlayback) {
+            return
+        }
         autoPlayback = false
-        autoPlaybackPaused = false
-        redrawScreen()
-        controlBar.setElapsedTime(0.0)
         playbackTimer.stop()
+        controlBar.setElapsedTime(0.0)
     }
 
     private fun drawPlaybackGraphics() {
@@ -447,7 +444,7 @@ class PathPlotter {
         var trackedTime = 0.0
         var currentTrajectory = model.trajectoryList.first()
         for (seg in model.trajectoryList) {
-            if ((trackedTime + seg.totalTimeSeconds) > t) {
+            if ((trackedTime + seg.totalTimeSeconds) >= t) {
                 currentTrajectory = seg
                 break
             }
