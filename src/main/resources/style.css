@@ -83,11 +83,11 @@
 }
 
 .text-field {
-    -fx-padding: 2 2 2 2;
+    -fx-padding: 2 3 2 3;
     -fx-background-color: #f8f8f8;
     -fx-border-color: #888;
     -fx-border-radius: 0;
-    -fx-border-width: 1;
+    -fx-border-width: 1.5;
     -fx-prompt-text-fill: #666;
     -fx-text-fill: black;
     -fx-border-insets: 0;
@@ -98,9 +98,15 @@
 
 .text-field:focused {
     -fx-border-color: #5a8ade;
+    -fx-border-insets: 0;
 }
 
 .radio-button {
+    -fx-focus-color: #5a8ade;
+    -fx-faint-focus-color: transparent;
+}
+
+.button {
     -fx-focus-color: #5a8ade;
     -fx-faint-focus-color: transparent;
 }

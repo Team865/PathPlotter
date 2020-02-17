@@ -10,13 +10,9 @@ import javafx.scene.layout.HBox
 
 class ControlBar {
 
-    enum class Mode {
-        Planned, Actual, Error
-    }
-
     private val timeSlider = Slider().apply {
         this.value = 0.0
-        this.prefWidth = 240.0
+        this.prefWidth = 360.0
         this.max = 1.0
         this.min = 0.0
     }
@@ -39,11 +35,6 @@ class ControlBar {
     private val y = textField()
     private val theta = textField()
 
-    private val planned = RadioButton("Planned")
-    private val actual = RadioButton("Actual")
-    private val error = RadioButton("Error")
-
-    private var mode = Mode.Planned
 
     private fun fixWidthLabel(t: String): Label {
         return Label(t)
@@ -59,7 +50,6 @@ class ControlBar {
         this.style = "-fx-background-color: #eee"
         alignment = Pos.CENTER
         this.children.addAll(timeSlider,
-                planned, actual, error,
                 xLabel, x,
                 yLabel, y,
                 thetaLabel, theta
@@ -76,19 +66,5 @@ class ControlBar {
         x.text = ""
         y.text = ""
         theta.text = ""
-    }
-
-    init {
-        val group = ToggleGroup()
-        group.toggles.addAll(planned, actual, error)
-        group.selectedToggleProperty().addListener { _, _, nv ->
-            mode = when {
-                nv === planned -> Mode.Planned
-                nv === actual -> Mode.Actual
-                nv === error -> Mode.Error
-                else -> throw IllegalStateException()
-            }
-        }
-        group.selectToggle(planned)
     }
 }

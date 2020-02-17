@@ -6,7 +6,7 @@ import ca.warp7.pathplotter.remote.RemoteListener
 import ca.warp7.pathplotter.state.Constants
 import ca.warp7.pathplotter.state.ControlPoint
 import ca.warp7.pathplotter.state.PixelReference
-import ca.warp7.pathplotter.state.getDefaultPath
+import ca.warp7.pathplotter.state.getDefaultModel
 import ca.warp7.pathplotter.ui.*
 import edu.wpi.first.wpilibj.geometry.Pose2d
 import edu.wpi.first.wpilibj.geometry.Rotation2d
@@ -75,7 +75,7 @@ class PathPlotter {
     private var controlDown = false
     private var isFullScreen = false
 
-    private val model = getDefaultPath()
+    private val model = getDefaultModel()
     private val ref = PixelReference()
 
     private val fileMenu = Menu("File", null,
@@ -85,6 +85,9 @@ class PathPlotter {
                 redrawScreen()
             },
             menuItem("Robot Parameters", MDI_TUNE, combo(KeyCode.COMMA, control = true)) {
+                if (dialogs.robotParamDialog(model)) {
+                    regenerate()
+                }
             },
             SeparatorMenuItem(),
             menuItem("Open Path", MDI_FOLDER_OUTLINE, null) {},
@@ -113,6 +116,11 @@ class PathPlotter {
             transformItem("Move reverse 0.01 metres", combo(KeyCode.DOWN, shift = true), -0.01, 0.0, 0.0, false),
             transformItem("Move left-normal 0.01 metres", combo(KeyCode.LEFT, shift = true), 0.0, 0.01, 0.0, false),
             transformItem("Move right-normal 0.01 metres", combo(KeyCode.RIGHT, shift = true), 0.0, -0.01, 0.0, false)
+    )
+
+    private val optimizationMenu = Menu("Optimization", FontIcon.of(MDI_MATRIX, 15),
+            CheckMenuItem("Automatic Intermediate Direction"),
+            CheckMenuItem("Minimize Curvature Sum")
     )
 
     private val pathMenu = Menu(
@@ -149,9 +157,7 @@ class PathPlotter {
             },
             transformMenu,
             SeparatorMenuItem(),
-            menuItem("Optimize Path", MDI_MATRIX, null) {
-
-            }
+            optimizationMenu
     )
 
     private val constraintsMenu = Menu("Timing Constraints", FontIcon.of(MDI_GAUGE, 15))
@@ -352,7 +358,6 @@ class PathPlotter {
         for ((index, trajectory) in model.trajectoryList.withIndex()) {
             drawSplines(ref, trajectory, index % 2 == 1, gc, model.robotWidth, model.robotLength)
         }
-        drawMeasuredStates(ref, model.measuredStates, gc, model.robotWidth, model.robotLength)
         if (!simulating) {
             val firstState = model.trajectoryList.first().states.first().poseMeters
             drawRobot(ref, gc, model.robotWidth, model.robotLength, firstState)

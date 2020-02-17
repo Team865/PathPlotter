@@ -35,20 +35,7 @@ class Model {
 
     val trajectoryList: MutableList<Trajectory> = ArrayList()
 
-    val measuredStates: MutableList<MeasuredState> = TrajectoryParameterizer.timeParameterizeTrajectory(
-            listOf(Pose2d(3.1, 1.7, 0.degrees),
-            Pose2d(5.85, 2.68, 0.degrees),
-            Pose2d(7.7, 2.68, 0.degrees)).zipWithNext { a, b -> QuinticHermiteSpline.fromPose(a, b) }
-                    .let { QuinticHermiteSpline.parameterize(it) },
-            listOf(DifferentialDriveKinematicsConstraint(
-                    DifferentialDriveKinematics(0.701),
-                    3.0
-            )), 0.0, 0.0,
-            maxVelocity, maxAcceleration, false).states.map {
-        MeasuredState(it.timeSeconds, it.poseMeters, Transform2d(), it.velocityMetersPerSecond,
-                it.velocityMetersPerSecond * it.curvatureRadPerMeter,
-                0.01,  0.01)
-    }.toMutableList()
+    val measuredStates: MutableList<MeasuredState> = ArrayList()
 
     fun regenerateAll() {
         val paths = controlPoints.map { it.pose }
