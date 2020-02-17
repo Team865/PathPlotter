@@ -14,13 +14,14 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.StrokeLineCap
 import kotlin.math.abs
 
-fun drawArrowForPose(ref: PixelReference, gc: GraphicsContext, point: Pose2d) {
+fun drawArrowForPose(ref: PixelReference, gc: GraphicsContext, point: Pose2d, mag: Double) {
     gc.lineWidth = 2.0
 
     val posOnCanvas = ref.transform(point.translation)
 
     val directionVector = point.rotation.translation()
-    val arrowOffset = ref.transform(point.translation + directionVector.times(Constants.kArrowLength))
+    val arrowOffset = ref.transform(point.translation +
+            directionVector.times(Constants.kArrowMultiplier * mag))
 
     // This is the offset from the base of the tip to the actual tip
     val r1 = directionVector.times(Constants.kArrowTipLength * Constants.k60DegreesRatio * 2)
@@ -63,8 +64,8 @@ fun drawSplines(
         trajectory: Trajectory,
         odd: Boolean,
         gc: GraphicsContext,
-        robotWidth: Double,
-        robotLength: Double
+        robotHalfWidth: Double,
+        robotHalfLength: Double
 ) {
 
     val maxCurvature = trajectory.states.map { abs(it.curvatureRadPerMeter) }.max()!!
@@ -73,7 +74,7 @@ fun drawSplines(
 
     val s0 = trajectory.states.first()
     val t0 = s0.poseMeters.translation
-    var normal = s0.poseMeters.rotation.normal().translation() * robotWidth
+    var normal = s0.poseMeters.rotation.normal().translation() * robotHalfWidth
     var left = ref.transform(t0 - normal)
     var right = ref.transform(t0 + normal)
 
@@ -83,10 +84,10 @@ fun drawSplines(
         } else {
             gc.stroke = Color.rgb(0, 255, 0)
         }
-        val a0 = ref.transform(t0) - ref.scale(Translation2d(robotLength,
-                robotWidth).rotateBy(s0.poseMeters.rotation))
-        val b0 = ref.transform(t0) + ref.scale(Translation2d(-robotLength,
-                robotWidth).rotateBy(s0.poseMeters.rotation))
+        val a0 = ref.transform(t0) - ref.scale(Translation2d(robotHalfLength,
+                robotHalfWidth).rotateBy(s0.poseMeters.rotation))
+        val b0 = ref.transform(t0) + ref.scale(Translation2d(-robotHalfLength,
+                robotHalfWidth).rotateBy(s0.poseMeters.rotation))
         gc.lineTo(a0, b0)
         gc.lineTo(left, a0)
         gc.lineTo(right, b0)
@@ -95,7 +96,7 @@ fun drawSplines(
     for (i in 1 until trajectory.states.size) {
         val s = trajectory.states[i]
         val t = s.poseMeters.translation
-        normal = s.poseMeters.rotation.normal().translation() * robotWidth
+        normal = s.poseMeters.rotation.normal().translation() * robotHalfWidth
         val newLeft = ref.transform(t - normal)
         val newRight = ref.transform(t + normal)
 
@@ -129,10 +130,10 @@ fun drawSplines(
         } else {
             gc.stroke = Color.rgb(0, 255, 0)
         }
-        val a1 = ref.transform(t1) - ref.scale(Translation2d(-robotLength,
-                robotWidth).rotateBy(s1.poseMeters.rotation))
-        val b1 = ref.transform(t1) + ref.scale(Translation2d(robotLength,
-                robotWidth).rotateBy(s1.poseMeters.rotation))
+        val a1 = ref.transform(t1) - ref.scale(Translation2d(-robotHalfLength,
+                robotHalfWidth).rotateBy(s1.poseMeters.rotation))
+        val b1 = ref.transform(t1) + ref.scale(Translation2d(robotHalfLength,
+                robotHalfWidth).rotateBy(s1.poseMeters.rotation))
         gc.lineTo(a1, b1)
         gc.lineTo(left, a1)
         gc.lineTo(right, b1)
@@ -196,14 +197,14 @@ fun drawMeasuredStates(
 fun drawRobot(
         ref: PixelReference,
         gc: GraphicsContext,
-        robotWidth: Double,
-        robotLength: Double,
+        robotHalfWidth: Double,
+        robotHalfLength: Double,
         point: Pose2d
 ) {
     val pos = ref.transform(point.translation)
     val heading = point.rotation
-    val a = ref.scale(Translation2d(robotLength, robotWidth).rotateBy(heading))
-    val b = ref.scale(Translation2d(robotLength, -robotWidth).rotateBy(heading))
+    val a = ref.scale(Translation2d(robotHalfLength, robotHalfWidth).rotateBy(heading))
+    val b = ref.scale(Translation2d(robotHalfLength, -robotHalfWidth).rotateBy(heading))
     val p1 = pos + a
     val p2 = pos + b
     val p3 = pos - a

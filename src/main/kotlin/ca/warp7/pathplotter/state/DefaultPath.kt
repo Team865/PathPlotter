@@ -9,8 +9,8 @@ fun getDefaultModel(): Model {
     path.apply {
         maxVelocity = 2.0
         maxAcceleration = 1.0
-        robotLength = 0.38
-        robotWidth = 0.33
+        robotLength = 0.76
+        robotWidth = 0.66
     }
     val pts = listOf(
             Pose2d(3.1, 1.7, 0.degrees),

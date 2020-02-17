@@ -206,10 +206,12 @@ class PathPlotter {
             redrawScreen()
         }
         controlBar.addEditListener { newPose, newMag ->
-            model.controlPoints.firstOrNull { it.isSelected }?.let {
-                it.pose = newPose
-                it.magMultiplier = newMag
-                regenerate()
+            if (!autoPlayback) {
+                model.controlPoints.firstOrNull { it.isSelected }?.let {
+                    it.pose = newPose
+                    it.magMultiplier = newMag
+                    regenerate()
+                }
             }
         }
     }
@@ -232,7 +234,7 @@ class PathPlotter {
                     .getDistance(mouseOnField) < Constants.kControlPointCircleSize
 
             val headingInRange = controlPoint.pose.translation.plus(controlPoint.pose.rotation
-                    .translation().times(Constants.kArrowLength))
+                    .translation().times(Constants.kArrowMultiplier * controlPoint.magMultiplier))
                     .getDistance(mouseOnField) < Constants.kArrowTipLength
 
             // Make sure draggingAngle is not overpowered by other points
@@ -358,7 +360,8 @@ class PathPlotter {
         gc.drawImage(bg, offsetX, offsetY, w, h)
 
         for ((index, trajectory) in model.trajectoryList.withIndex()) {
-            drawSplines(ref, trajectory, index % 2 == 1, gc, model.robotWidth, model.robotLength)
+            drawSplines(ref, trajectory, index % 2 == 1, gc,
+                    model.robotWidth / 2.0, model.robotLength / 2.0)
         }
 
         drawPlaybackGraphics()
@@ -395,7 +398,7 @@ class PathPlotter {
             } else {
                 gc.stroke = Color.WHITE
             }
-            drawArrowForPose(ref, gc, controlPoint.pose)
+            drawArrowForPose(ref, gc, controlPoint.pose, controlPoint.magMultiplier)
         }
     }
 
@@ -478,8 +481,11 @@ class PathPlotter {
         controlBar.setElapsedTime(t)
         infoBar.setTime(t, model.totalTime)
 
-        drawRobot(ref, gc, model.robotWidth, model.robotLength, sample.poseMeters)
-        gc.stroke = Color.YELLOW
-        drawArrowForPose(ref, gc, sample.poseMeters)
+        drawRobot(ref, gc, model.robotWidth / 2.0,
+                model.robotLength / 2.0, sample.poseMeters)
+        if (autoPlayback) {
+            gc.stroke = Color.YELLOW
+            drawArrowForPose(ref, gc, sample.poseMeters, 1.2)
+        }
     }
 }

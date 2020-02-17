@@ -4,7 +4,7 @@ object Constants {
 
     const val kControlPointCircleSize = 0.2 // m
 
-    const val kArrowLength = 0.5 // m
+    const val kArrowMultiplier = 0.45 // m
 
     const val k60DegreesRatio = 0.5773502691896258 // 1/sqrt(3)
 
