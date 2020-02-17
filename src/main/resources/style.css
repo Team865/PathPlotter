@@ -110,3 +110,7 @@
     -fx-focus-color: #5a8ade;
     -fx-faint-focus-color: transparent;
 }
+
+.dialog-pane {
+    -fx-background-color: white;
+}

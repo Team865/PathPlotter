@@ -28,6 +28,7 @@ JavaFX Build: ${System.getProperty("javafx.runtime.version")}
 Kotlin Build: ${KotlinVersion.CURRENT}
 Max Heap Size: ${Runtime.getRuntime().maxMemory() / (1024 * 1024)}Mb"""
         dialog.dialogPane.buttonTypes.add(ButtonType.OK)
+        dialog.dialogPane.stylesheets.add("/style.css")
         dialog.initOwner(stage)
         dialog.show()
     }
@@ -43,11 +44,14 @@ Max Heap Size: ${Runtime.getRuntime().maxMemory() / (1024 * 1024)}Mb"""
         val dialog = Dialog<ButtonType>()
         dialog.title = "Choose Field"
         val cb = ChoiceBox<String>(listOf(
-                "/2018-powerup.json",
+                "/2020-infiniterecharge.json",
                 "/2019-deepspace.json",
-                "/2020-infiniterecharge.json").observable())
+                "/2018-powerup.json"
+        ).observable())
+        cb.prefWidth = 240.0
         cb.selectionModel.select(0)
         dialog.dialogPane.buttonTypes.add(ButtonType.OK)
+        dialog.dialogPane.stylesheets.add("/style.css")
         dialog.dialogPane.content = VBox(cb)
         dialog.initOwner(stage)
         dialog.showAndWait()

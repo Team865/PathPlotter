@@ -3,7 +3,6 @@ package ca.warp7.pathplotter
 import ca.warp7.pathplotter.fx.combo
 import ca.warp7.pathplotter.fx.menuItem
 import ca.warp7.pathplotter.remote.RemoteListener
-import ca.warp7.pathplotter.state.ControlPoint
 import ca.warp7.pathplotter.state.PixelReference
 import ca.warp7.pathplotter.state.getDefaultModel
 import ca.warp7.pathplotter.ui.*
@@ -75,9 +74,9 @@ class PathPlotter {
                     regenerate()
                 }
             },
-            SeparatorMenuItem(),
-            menuItem("Open Path", MDI_FOLDER_OUTLINE, null) {},
-            menuItem("Open Playback", MDI_PLAY_BOX_OUTLINE, null) {},
+//            SeparatorMenuItem(),
+//            menuItem("Open Path", MDI_FOLDER_OUTLINE, null) {},
+//            menuItem("Open Playback", MDI_PLAY_BOX_OUTLINE, null) {},
             SeparatorMenuItem(),
             menuItem("Exit", null, null) {
                 exitProcess(0)
@@ -91,7 +90,7 @@ class PathPlotter {
         }
     }
 
-    private val transformMenu = Menu("Transform Point(s)", FontIcon.of(MDI_CURSOR_MOVE, 15),
+    private val transformMenu = Menu("Transform Selected Point(s)", FontIcon.of(MDI_CURSOR_MOVE, 15),
             transformItem("Rotate 1 degree counter-clockwise", combo(KeyCode.Q), 0.0, 0.0, 1.0, false),
             transformItem("Rotate 1 degree clockwise", combo(KeyCode.W), 0.0, 0.0, -1.0, false),
             transformItem("Move up 0.01 metres", combo(KeyCode.UP), 0.0, 0.01, 0.0, true),
@@ -104,6 +103,7 @@ class PathPlotter {
             transformItem("Move right-normal 0.01 metres", combo(KeyCode.RIGHT, shift = true), 0.0, -0.01, 0.0, false)
     )
 
+    @Suppress("unused")
     private val optimizationMenu = Menu("Optimization", FontIcon.of(MDI_MATRIX, 15),
             CheckMenuItem("Automatic Intermediate Direction"),
             CheckMenuItem("Minimize Curvature Sum")
@@ -113,23 +113,15 @@ class PathPlotter {
             "Path",
             null,
             menuItem("Insert Control Point", MDI_PLUS, combo(KeyCode.N)) {
-                model.controlPoints.withIndex().firstOrNull { it.value.isSelected }?.let { cp ->
-                    val ps = cp.value.pose
-                    cp.value.isSelected = false
-                    val transform = ps.rotation.translation().times(1.5)
-                    val newPose = Pose2d(ps.translation + transform, ps.rotation)
-                    val newCp = ControlPoint(newPose)
-                    newCp.isSelected = true
-                    model.controlPoints.add(cp.index + 1, newCp)
-                }
+                model.addPoint()
                 regenerate()
             },
-            menuItem("Insert Reverse Direction", MDI_SWAP_VERTICAL, combo(KeyCode.R, control = true)) {
-
-            },
-            menuItem("Insert Quick Turn", MDI_SYNC, combo(KeyCode.T, control = true)) {
-
-            },
+//            menuItem("Insert Reverse Direction", MDI_SWAP_VERTICAL, combo(KeyCode.R, control = true)) {
+//
+//            },
+//            menuItem("Insert Quick Turn", MDI_SYNC, combo(KeyCode.T, control = true)) {
+//
+//            },
             SeparatorMenuItem(),
             menuItem("Select All", null, combo(KeyCode.A, control = true)) {
                 for (cp in model.controlPoints) cp.isSelected = true
@@ -141,25 +133,23 @@ class PathPlotter {
                     regenerate()
                 }
             },
-            transformMenu,
-            SeparatorMenuItem(),
-            optimizationMenu
+            transformMenu//,
+//            SeparatorMenuItem(),
+//            optimizationMenu
     )
 
     private val constraintsMenu = Menu("Timing Constraints", FontIcon.of(MDI_GAUGE, 15))
 
     private val trajectoryMenu = Menu("Trajectory", null,
-            menuItem("Toggle Playback", MDI_PLAY, combo(KeyCode.SPACE)) { togglePlayback() },
-            menuItem("Timing Graph", MDI_CHART_LINE, combo(KeyCode.G, control = true)) { showGraphs() },
-            SeparatorMenuItem(),
-            menuItem("Start Live Recording", MDI_RECORD, null) {},
+            menuItem("Toggle Trajectory Playback", MDI_PLAY, combo(KeyCode.SPACE)) { togglePlayback() },
+            menuItem("Show Graphs", MDI_CHART_LINE, combo(KeyCode.G, control = true)) { showGraphs() },
+//            SeparatorMenuItem(),
+//            menuItem("Start Live Recording", MDI_RECORD, null) {},
             SeparatorMenuItem(),
             constraintsMenu
     )
 
     private val viewMenu = Menu("View", null,
-            CheckMenuItem("Curvature Gradient").apply { isSelected = true },
-            CheckMenuItem("Dual Offset Paths").apply { isSelected = true },
             menuItem("Toggle Fullscreen", null, combo(KeyCode.F11)) {
                 isFullScreen = !isFullScreen
                 stage.isFullScreen = isFullScreen
