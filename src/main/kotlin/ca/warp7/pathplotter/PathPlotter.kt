@@ -165,7 +165,7 @@ class PathPlotter {
         canvas.addEventFilter(MouseEvent.MOUSE_CLICKED) { canvas.requestFocus() }
         view.stylesheets.add("/style.css")
         stage.scene = Scene(view)
-        stage.title = "PathPlotter 2020.2.0"
+        stage.title = "PathPlotter ${BuildConfig.kVersion}"
         stage.width = 1000.0
         stage.height = 600.0
         stage.fullScreenExitKeyCombination = KeyCodeCombination(KeyCode.F11)
@@ -204,6 +204,13 @@ class PathPlotter {
 
         controlBar.addTimePropertyListener {
             redrawScreen()
+        }
+        controlBar.addEditListener { newPose, newMag ->
+            model.controlPoints.firstOrNull { it.isSelected }?.let {
+                it.pose = newPose
+                it.magMultiplier = newMag
+                regenerate()
+            }
         }
     }
 
@@ -377,10 +384,16 @@ class PathPlotter {
         if (autoPlayback) {
             return
         }
+        var coordinateDrawn = false
         for (controlPoint in model.controlPoints) {
-            gc.stroke = when {
-                controlPoint.isSelected -> Color.rgb(0, 255, 255)
-                else -> Color.WHITE
+            if (controlPoint.isSelected) {
+                if (!coordinateDrawn) {
+                    drawCoordinateFrame(ref, gc, controlPoint.pose)
+                    coordinateDrawn = true
+                }
+                gc.stroke = Color.rgb(0, 255, 255)
+            } else {
+                gc.stroke = Color.WHITE
             }
             drawArrowForPose(ref, gc, controlPoint.pose)
         }

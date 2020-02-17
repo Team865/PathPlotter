@@ -35,8 +35,9 @@ class Model {
     val measuredStates: MutableList<MeasuredState> = ArrayList()
 
     fun regenerateAll() {
-        val paths = controlPoints.map { it.pose }
-                .zipWithNext { a, b -> QuinticHermiteSpline.fromPose(a, b) }
+        val paths = controlPoints.zipWithNext { a, b ->
+            QuinticHermiteSpline.fromPose(a.pose, b.pose, a.magMultiplier, b.magMultiplier)
+        }
         if (optimizing) {
             QuinticHermiteSpline.optimizeSpline(paths.toMutableList())
         }

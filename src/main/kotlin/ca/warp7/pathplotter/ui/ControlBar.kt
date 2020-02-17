@@ -4,11 +4,11 @@ import ca.warp7.pathplotter.util.f
 import ca.warp7.pathplotter.util.f2
 import edu.wpi.first.wpilibj.geometry.Pose2d
 import edu.wpi.first.wpilibj.geometry.Rotation2d
-import javafx.event.ActionEvent
 import javafx.event.EventHandler
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.control.*
+import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.HBox
 
@@ -49,19 +49,21 @@ class ControlBar {
     }
 
     fun addEditListener(listener: (newPose: Pose2d, newMag: Double) -> Unit) {
-        val handler = EventHandler<ActionEvent> {
-            try {
-                val pose = Pose2d(x.text.toDouble(), y.text.toDouble(),
-                        Rotation2d.fromDegrees(theta.text.toDouble()))
-                val m = mag.text.toDouble()
-                listener(pose, m)
-            } catch (e: Exception) {
+        val handler = EventHandler<KeyEvent> {
+            if (it.code == KeyCode.TAB || it.code == KeyCode.ENTER) {
+                try {
+                    val pose = Pose2d(x.text.toDouble(), y.text.toDouble(),
+                            Rotation2d.fromDegrees(theta.text.toDouble()))
+                    val m = mag.text.toDouble()
+                    listener(pose, m)
+                } catch (e: Exception) {
+                }
             }
         }
-        x.onAction = handler
-        y.onAction = handler
-        theta.onAction = handler
-        mag.onAction = handler
+        x.onKeyPressed = handler
+        y.onKeyPressed = handler
+        theta.onKeyPressed = handler
+        mag.onKeyPressed = handler
     }
 
     private fun fixWidthLabel(t: String): Label {

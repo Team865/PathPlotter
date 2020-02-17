@@ -46,6 +46,18 @@ fun drawArrowForPose(ref: PixelReference, gc: GraphicsContext, point: Pose2d) {
     gc.lineTo(a3, a1)
 }
 
+fun drawCoordinateFrame(ref: PixelReference, gc: GraphicsContext, point: Pose2d) {
+    gc.lineWidth = 1.0
+
+    val posOnCanvas = ref.transform(point.translation)
+    val xDir = ref.scale(point.rotation.translation())
+    val yDir = ref.scale(point.rotation.normal().translation())
+
+    gc.stroke = Color.MAGENTA
+    gc.lineTo(posOnCanvas.minus(xDir.times(5.0)), posOnCanvas.plus(xDir.times(5.0)))
+    gc.lineTo(posOnCanvas.minus(yDir.times(5.0)), posOnCanvas.plus(yDir.times(5.0)))
+}
+
 fun drawSplines(
         ref: PixelReference,
         trajectory: Trajectory,
