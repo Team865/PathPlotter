@@ -3,6 +3,7 @@ package ca.warp7.pathplotter.ui
 import ca.warp7.pathplotter.util.f
 import ca.warp7.pathplotter.util.f2
 import edu.wpi.first.wpilibj.geometry.Pose2d
+import edu.wpi.first.wpiutil.math.MathUtil
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.control.*
@@ -31,13 +32,17 @@ class ControlBar {
         timeSlider.value = t
     }
 
+    fun getElapsedTime(): Double {
+        return timeSlider.value
+    }
+
     private val x = textField()
     private val y = textField()
     private val theta = textField()
     private val mag = textField()
 
-    fun addTimePropertyListener(listener: (time: Double) -> Unit) {
-        timeSlider.valueProperty().addListener { _, _, newValue -> listener(newValue.toDouble()) }
+    fun addTimePropertyListener(listener: () -> Unit) {
+        timeSlider.valueProperty().addListener { _, _, _ -> listener() }
     }
 
     private fun fixWidthLabel(t: String): Label {

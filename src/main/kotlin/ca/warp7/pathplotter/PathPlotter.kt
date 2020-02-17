@@ -4,7 +4,6 @@ import ca.warp7.pathplotter.fx.combo
 import ca.warp7.pathplotter.fx.menuItem
 import ca.warp7.pathplotter.remote.RemoteListener
 import ca.warp7.pathplotter.state.ControlPoint
-import ca.warp7.pathplotter.ui.Constants
 import ca.warp7.pathplotter.state.PixelReference
 import ca.warp7.pathplotter.state.getDefaultModel
 import ca.warp7.pathplotter.ui.*
@@ -55,22 +54,6 @@ class PathPlotter {
     }
 
     private val remoteListener = RemoteListener()
-
-    init {
-        remoteListener.addConnectionListener {
-            infoBar.setConnection(it)
-        }
-        menuBar.isUseSystemMenuBar = true
-        canvas.isFocusTraversable = true
-        canvas.addEventFilter(MouseEvent.MOUSE_CLICKED) { canvas.requestFocus() }
-        view.stylesheets.add("/style.css")
-        stage.scene = Scene(view)
-        stage.title = "PathPlotter 2020.2.0"
-        stage.width = 1000.0
-        stage.height = 600.0
-        stage.fullScreenExitKeyCombination = KeyCodeCombination(KeyCode.F11)
-        stage.icons.add(Image(PathPlotter::class.java.getResourceAsStream("/icon.png")))
-    }
 
     private val dialogs = Dialogs(stage)
     private val gc: GraphicsContext = canvas.graphicsContext2D
@@ -167,7 +150,7 @@ class PathPlotter {
 
     private val trajectoryMenu = Menu("Trajectory", null,
             menuItem("Start/Pause Playback", MDI_PLAY, combo(KeyCode.SPACE)) { onSpacePressed() },
-            menuItem("Stop Playback", MDI_STOP, combo(KeyCode.ESCAPE)) { stopSimulation() },
+            menuItem("Stop Playback", MDI_STOP, combo(KeyCode.ESCAPE)) { stopPlayback() },
             menuItem("Timing Graph", MDI_CHART_LINE, combo(KeyCode.G, control = true)) { showGraphs() },
             SeparatorMenuItem(),
             menuItem("Start Live Recording", MDI_RECORD, null) {},
@@ -185,6 +168,20 @@ class PathPlotter {
     )
 
     init {
+        remoteListener.addConnectionListener {
+            infoBar.setConnection(it)
+        }
+        menuBar.isUseSystemMenuBar = true
+        canvas.isFocusTraversable = true
+        canvas.addEventFilter(MouseEvent.MOUSE_CLICKED) { canvas.requestFocus() }
+        view.stylesheets.add("/style.css")
+        stage.scene = Scene(view)
+        stage.title = "PathPlotter 2020.2.0"
+        stage.width = 1000.0
+        stage.height = 600.0
+        stage.fullScreenExitKeyCombination = KeyCodeCombination(KeyCode.F11)
+        stage.icons.add(Image(PathPlotter::class.java.getResourceAsStream("/icon.png")))
+
         for (handler in constraintHandlers) {
             constraintsMenu.items.add(MenuItem(handler.getName()).apply {
                 this.setOnAction { handler.editConstraint(stage) }
@@ -215,12 +212,18 @@ class PathPlotter {
                 controlDown = false
             }
         }
+
+        controlBar.addTimePropertyListener {
+            redrawScreen()
+        }
     }
 
     private var isDraggingAngle = false
 
     private fun onMousePressed(x: Double, y: Double) {
-        if (simulating) return
+        if (autoPlayback) {
+            return
+        }
         val mouseOnField = ref.inverseTransform(Translation2d(x, y))
 
         var selectionChanged = false
@@ -266,7 +269,9 @@ class PathPlotter {
     }
 
     private fun drag(x: Double, y: Double) {
-        if (simulating) return
+        if (autoPlayback) {
+            return
+        }
         val mouseOnField = ref.inverseTransform(Translation2d(x, y))
         for (controlPoint in model.controlPoints) {
             if (controlPoint.isSelected) {
@@ -357,17 +362,15 @@ class PathPlotter {
         gc.fillRect(0.0, 0.0, canvas.width, canvas.height)
         gc.drawImage(bg, offsetX, offsetY, w, h)
 
-
         for ((index, trajectory) in model.trajectoryList.withIndex()) {
             drawSplines(ref, trajectory, index % 2 == 1, gc, model.robotWidth, model.robotLength)
         }
-        if (!simulating) {
-            val firstState = model.trajectoryList.first().states.first().poseMeters
-            drawRobot(ref, gc, model.robotWidth, model.robotLength, firstState)
+        if (!autoPlayback) {
             updateSelectedPointInfo()
+            drawAllControlPoints()
         }
 
-        drawAllControlPoints()
+        drawPlaybackGraphics()
         graphWindow.drawGraph()
     }
 
@@ -382,7 +385,9 @@ class PathPlotter {
     }
 
     private fun drawAllControlPoints() {
-        if (simulating) return
+        if (autoPlayback) {
+            return
+        }
         for (controlPoint in model.controlPoints) {
             gc.stroke = when {
                 controlPoint.isSelected -> Color.rgb(0, 255, 255)
@@ -392,61 +397,52 @@ class PathPlotter {
         }
     }
 
-    private val simulationTimer = object : AnimationTimer() {
+    private val playbackTimer = object : AnimationTimer() {
         override fun handle(now: Long) {
-            handleSimulation()
+            val time = System.nanoTime() / 1E9
+            val dt = time - lastTime
+            lastTime = time
+
+            val elapsed = controlBar.getElapsedTime()
+            val newElapsed = elapsed + dt
+            if (newElapsed > model.totalTime) {
+                stopPlayback()
+            } else {
+                controlBar.setElapsedTime(newElapsed)
+            }
         }
     }
 
-    private var simulating = false
-    private var simPaused = false
+    private var autoPlayback = false
+    private var autoPlaybackPaused = false
     private var simElapsed = 0.0
-    private var simElapsedChanged = false
     private var lastTime = 0.0
-    private var prevK = 0.0
-    private var prevW = 0.0
 
     private fun onSpacePressed() {
-        if (simulating) {
-            simPaused = !simPaused
+        if (autoPlayback) {
+            autoPlaybackPaused = !autoPlaybackPaused
         } else {
-            simulating = true
+            autoPlayback = true
             simElapsed = 0.0
-            simPaused = false
-            prevK = 0.0
-            prevW = 0.0
-            lastTime = System.currentTimeMillis() / 1000.0
+            autoPlaybackPaused = false
+            lastTime = System.nanoTime() / 1E9
             redrawScreen()
-            simulationTimer.start()
+            playbackTimer.start()
         }
     }
 
-    private fun stopSimulation() {
-        if (!simulating) return
-        simulating = false
-        simPaused = false
+    private fun stopPlayback() {
+        if (!autoPlayback) return
+        autoPlayback = false
+        autoPlaybackPaused = false
         redrawScreen()
         controlBar.setElapsedTime(0.0)
-        simulationTimer.stop()
+        playbackTimer.stop()
     }
 
-    fun handleSimulation() {
-        val nt = System.currentTimeMillis() / 1000.0
-        val dt = nt - lastTime
-        lastTime = nt
+    private fun drawPlaybackGraphics() {
 
-        if (simPaused) {
-            if (!simElapsedChanged) return
-            simElapsedChanged = false
-        } else {
-            simElapsed += dt
-        }
-
-        val t = simElapsed
-        if (t > model.totalTime) {
-            stopSimulation()
-            return
-        }
+        val t = controlBar.getElapsedTime()
 
         var trackedTime = 0.0
         var currentTrajectory = model.trajectoryList.first()
@@ -461,17 +457,20 @@ class PathPlotter {
 
         val sample = currentTrajectory.sample(relativeTime)
 
-        redrawScreen()
-
         val v = sample.velocityMetersPerSecond
         val k = sample.curvatureRadPerMeter
         val w = v * k
 
-        val dkShim = (k - prevK) / dt
-        val dwShim = (w - prevW) / dt
-
-        prevK = k
-        prevW = w
+        val dkShim: Double
+        val dwShim: Double
+        if (relativeTime <= 0.2) {
+            dkShim = 0.0
+            dwShim = 0.0
+        } else {
+            val prevSample = currentTrajectory.sample(relativeTime - 0.2)
+            dkShim = (k - prevSample.curvatureRadPerMeter) / 0.2
+            dwShim = (w - prevSample.velocityMetersPerSecond * prevSample.curvatureRadPerMeter) / 0.2
+        }
 
         infoBar.setVel(v, w, sample.accelerationMetersPerSecondSq, dwShim)
         infoBar.setCurve(k, dkShim, model.totalSumOfCurvature)
