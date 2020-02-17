@@ -3,7 +3,7 @@ package ca.warp7.pathplotter
 import ca.warp7.pathplotter.fx.combo
 import ca.warp7.pathplotter.fx.menuItem
 import ca.warp7.pathplotter.remote.RemoteListener
-import ca.warp7.pathplotter.state.Constants
+import ca.warp7.pathplotter.ui.Constants
 import ca.warp7.pathplotter.state.ControlPoint
 import ca.warp7.pathplotter.state.PixelReference
 import ca.warp7.pathplotter.state.getDefaultModel

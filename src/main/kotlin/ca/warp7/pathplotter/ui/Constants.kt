@@ -1,8 +1,6 @@
-package ca.warp7.pathplotter.state
+package ca.warp7.pathplotter.ui
 
 object Constants {
-    const val kFieldSize = 8.2296 // metres; equals 27 ft
-
 
     const val kControlPointCircleSize = 0.2 // m
 

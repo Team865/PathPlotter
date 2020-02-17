@@ -40,6 +40,9 @@ class Model {
     fun regenerateAll() {
         val paths = controlPoints.map { it.pose }
                 .zipWithNext { a, b -> QuinticHermiteSpline.fromPose(a, b) }
+        if (optimizing) {
+            QuinticHermiteSpline.optimizeSpline(paths.toMutableList())
+        }
         val poseStates = QuinticHermiteSpline.parameterize(paths)
         trajectoryList.clear()
         trajectoryList.add(TrajectoryParameterizer.timeParameterizeTrajectory(poseStates, listOf(
