@@ -19,7 +19,7 @@ repositories {
 }
 
 group = "pathplotter"
-version = "2020.2.0"
+version = "2020.2.1"
 
 buildConfig {
     packageName("ca.warp7.pathplotter")
@@ -50,6 +50,7 @@ tasks.withType<Test> {
 }
 
 val wpilibVersion = "2020.2.2"
+val jacksonVersion = "2.10.0"
 
 fun desktopArch(): String {
     val arch: String = System.getProperty("os.arch")
@@ -64,7 +65,16 @@ fun desktopOS(): String {
     }
 }
 
-val platform =  desktopOS() + desktopArch()
+fun javafxOS(): String {
+    return when {
+        OperatingSystem.current().isWindows -> "win"
+        OperatingSystem.current().isMacOsX -> "mac"
+        else -> "linux"
+    }
+}
+
+val wpilibPlatform =  desktopOS() + desktopArch()
+val javafxPlatform = javafxOS()
 
 tasks.compileJava {
     doFirst {
@@ -86,11 +96,11 @@ dependencies {
     implementation("edu.wpi.first.wpilibj:wpilibj-java:$wpilibVersion")
     implementation("edu.wpi.first.wpiutil:wpiutil-java:$wpilibVersion")
     implementation("edu.wpi.first.ntcore:ntcore-java:$wpilibVersion")
-    implementation("edu.wpi.first.ntcore:ntcore-jni:$wpilibVersion:$platform")
+    implementation("edu.wpi.first.ntcore:ntcore-jni:$wpilibVersion:$wpilibPlatform")
 
-    implementation("org.openjfx:javafx-base:13:win")
-    implementation("org.openjfx:javafx-graphics:13:win")
-    implementation("org.openjfx:javafx-controls:13:win")
+    implementation("org.openjfx:javafx-base:13:$javafxPlatform")
+    implementation("org.openjfx:javafx-graphics:13:$javafxPlatform")
+    implementation("org.openjfx:javafx-controls:13:$javafxPlatform")
     implementation("org.kordamp.ikonli:ikonli-javafx:11.3.5")
     implementation("org.kordamp.ikonli:ikonli-materialdesign-pack:11.3.5")
     implementation("org.json:json:20190722")
