@@ -21,6 +21,7 @@ class DifferentialDriveKinematicsHandler : ConstraintHandler {
             children.add(Label("Max velocity in metres per second"))
             children.add(TextField())
         }
+        dialog.dialogPane.stylesheets.add("/style.css")
         dialog.dialogPane.buttonTypes.addAll(ButtonType.OK, ButtonType.CANCEL)
         dialog.show()
     }

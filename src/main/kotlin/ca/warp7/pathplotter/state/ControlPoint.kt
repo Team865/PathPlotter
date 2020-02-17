@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.geometry.Pose2d
 
 class ControlPoint(var pose: Pose2d) {
     var isSelected = false
-
+    var mag = 1.2
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

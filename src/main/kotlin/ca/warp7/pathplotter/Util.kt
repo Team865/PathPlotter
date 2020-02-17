@@ -6,10 +6,6 @@ import edu.wpi.first.wpilibj.geometry.Translation2d
 import javafx.scene.canvas.GraphicsContext
 
 
-fun snap(t: Translation2d): Translation2d {
-    return Translation2d((t.x * 1000).toInt() / 1000.0, (t.y * 1000).toInt() / 1000.0)
-}
-
 val constraintHandlers = listOf(
         DifferentialDriveKinematicsHandler(),
         DifferentialDriveVoltageHandler(),

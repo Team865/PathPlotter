@@ -19,6 +19,7 @@ class CentripetalAccelerationHandler : ConstraintHandler {
             children.add(Label("Maximum centripetal acceleration in metres per second squared"))
             children.add(TextField())
         }
+        dialog.dialogPane.stylesheets.add("/style.css")
         dialog.dialogPane.buttonTypes.addAll(ButtonType.OK, ButtonType.CANCEL)
         dialog.show()
     }

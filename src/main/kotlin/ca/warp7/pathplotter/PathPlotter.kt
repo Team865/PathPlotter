@@ -299,7 +299,7 @@ class PathPlotter {
         for (controlPoint in model.controlPoints) {
             if (controlPoint.isSelected) {
                 val oldPose = controlPoint.pose
-                val newPose = Pose2d(snap(oldPose.translation + offset), oldPose.rotation + rotation)
+                val newPose = Pose2d(oldPose.translation + offset, oldPose.rotation + rotation)
                 controlPoint.pose = newPose
             }
         }
@@ -371,7 +371,7 @@ class PathPlotter {
     private fun updateSelectedPointInfo() {
         for (cp in model.controlPoints) {
             if (cp.isSelected) {
-                controlBar.setPose(cp.pose)
+                controlBar.setPose(cp.pose, cp.mag)
                 return
             }
         }

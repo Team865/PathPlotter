@@ -34,6 +34,7 @@ class ControlBar {
     private val x = textField()
     private val y = textField()
     private val theta = textField()
+    private val mag = textField()
 
 
     private fun fixWidthLabel(t: String): Label {
@@ -43,6 +44,7 @@ class ControlBar {
     private val xLabel = fixWidthLabel("X:")
     private val yLabel = fixWidthLabel("Y:")
     private val thetaLabel = fixWidthLabel("θ:")
+    private val magLabel = fixWidthLabel("M:")
 
     val top = HBox().apply {
         spacing = 8.0
@@ -52,19 +54,26 @@ class ControlBar {
         this.children.addAll(timeSlider,
                 xLabel, x,
                 yLabel, y,
-                thetaLabel, theta
+                thetaLabel, theta,
+                magLabel, mag
         )
     }
 
-    fun setPose(pose: Pose2d) {
+    fun setPose(pose: Pose2d, pMag: Double = Double.NaN) {
         x.text = pose.translation.x.f
         y.text = pose.translation.y.f
         theta.text = pose.rotation.degrees.f2
+        if (pMag.isNaN()) {
+            mag.text = ""
+        } else {
+            mag.text = pMag.f2
+        }
     }
 
     fun clearPose() {
         x.text = ""
         y.text = ""
         theta.text = ""
+        mag.text = ""
     }
 }

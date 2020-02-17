@@ -23,6 +23,7 @@ class MecanumKinematicsHandler : ConstraintHandler {
             children.add(Label("Wheel distance from centre"))
             children.add(ListView<Translation2d>().apply { prefHeight = 96.0 })
         }
+        dialog.dialogPane.stylesheets.add("/style.css")
         dialog.dialogPane.buttonTypes.addAll(ButtonType.OK, ButtonType.CANCEL)
         dialog.show()
     }

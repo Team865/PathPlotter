@@ -27,6 +27,7 @@ class DifferentialDriveVoltageHandler : ConstraintHandler {
             children.add(Label("Ka"))
             children.add(TextField())
         }
+        dialog.dialogPane.stylesheets.add("/style.css")
         dialog.dialogPane.buttonTypes.addAll(ButtonType.OK, ButtonType.CANCEL)
         dialog.show()
     }
