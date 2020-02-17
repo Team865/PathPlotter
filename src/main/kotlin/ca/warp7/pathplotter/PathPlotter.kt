@@ -371,7 +371,7 @@ class PathPlotter {
     private fun updateSelectedPointInfo() {
         for (cp in model.controlPoints) {
             if (cp.isSelected) {
-                controlBar.setPose(cp.pose, cp.mag)
+                controlBar.setPose(cp.pose, cp.magMultiplier)
                 return
             }
         }

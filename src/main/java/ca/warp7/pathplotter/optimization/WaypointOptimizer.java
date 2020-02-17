@@ -8,9 +8,10 @@
 
 package ca.warp7.pathplotter.optimization;
 
+import ca.warp7.frc2020.lib.trajectory.QuinticHermiteSpline;
+import ca.warp7.pathplotter.state.ControlPoint;
+import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Translation2d;
-import edu.wpi.first.wpilibj.spline.CubicHermiteSpline;
-import edu.wpi.first.wpilibj.spline.Spline;
 
 import java.util.Arrays;
 
@@ -26,17 +27,21 @@ public class WaypointOptimizer {
      *                  wish to create a path with two waypoints.
      * @param end       The ending control vector.
      * @return A vector of cubic hermite splines that interpolate through the
-     *         provided waypoints and control vectors.
+     * provided waypoints and control vectors.
      */
-    public static CubicHermiteSpline[] getCubicSplinesFromControlVectors(
-            Spline.ControlVector start, Translation2d[] waypoints, Spline.ControlVector end) {
+    public static QuinticHermiteSpline[] getOptimizedSplines(
+            ControlPoint start, Translation2d[] waypoints, ControlPoint end) {
 
-        CubicHermiteSpline[] splines = new CubicHermiteSpline[waypoints.length + 1];
+        QuinticHermiteSpline[] splines = new QuinticHermiteSpline[waypoints.length + 1];
 
-        double[] xInitial = start.x;
-        double[] yInitial = start.y;
-        double[] xFinal = end.x;
-        double[] yFinal = end.y;
+        double dist = start.pose.getTranslation().getDistance(end.pose.getTranslation());
+        double ds_start = dist * start.magMultiplier;
+        double ds_end = dist * end.magMultiplier;
+
+        double[] xInitial = toControlVectorX(start.pose, ds_start);
+        double[] yInitial = toControlVectorY(start.pose, ds_start);
+        double[] xFinal = toControlVectorX(end.pose, ds_end);
+        double[] yFinal = toControlVectorY(end.pose, ds_end);
 
         if (waypoints.length > 1) {
             Translation2d[] newWaypts = new Translation2d[waypoints.length + 2];
@@ -48,8 +53,7 @@ public class WaypointOptimizer {
 
             // Populate tridiagonal system for clamped cubic
       /* See:
-      https://www.uio.no/studier/emner/matnat/ifi/nedlagte-emner/INF-MAT4350/h08
-      /undervisningsmateriale/chap7alecture.pdf
+      https://www.uio.no/studier/emner/matnat/ifi/nedlagte-emner/INF-MAT4350/h08/undervisningsmateriale/chap7alecture.pdf
       */
             // Above-diagonal of tridiagonal matrix, zero-padded
             final double[] a = new double[newWaypts.length - 2];
@@ -108,11 +112,13 @@ public class WaypointOptimizer {
             newFy[newFy.length - 1] = yFinal[1];
 
             for (int i = 0; i < newFx.length - 1; i++) {
-                splines[i] = new CubicHermiteSpline(
-                        new double[]{newWaypts[i].getX(), newFx[i]},
-                        new double[]{newWaypts[i + 1].getX(), newFx[i + 1]},
-                        new double[]{newWaypts[i].getY(), newFy[i]},
-                        new double[]{newWaypts[i + 1].getY(), newFy[i + 1]}
+                splines[i] = new QuinticHermiteSpline(
+                        newWaypts[i].getX(), newWaypts[i + 1].getX(),
+                        newFx[i], newFx[i + 1],
+                        0.0, 0.0,
+                        newWaypts[i].getY(), newWaypts[i + 1].getY(),
+                        newFy[i], newFy[i + 1],
+                        0.0, 0.0
                 );
             }
         } else if (waypoints.length == 1) {
@@ -125,16 +131,26 @@ public class WaypointOptimizer {
                     - yFinal[1] - yInitial[1])
                     / 4.0;
 
-            double[] midXControlVector = {waypoints[0].getX(), xDeriv};
-            double[] midYControlVector = {waypoints[0].getY(), yDeriv};
+            splines[0] = new QuinticHermiteSpline(
+                    xInitial[0], waypoints[0].getX(),
+                    xInitial[1], xDeriv,
+                    0.0, 0.0,
+                    yInitial[0], waypoints[0].getY(),
+                    yInitial[1], yDeriv,
+                    0.0, 0.0
+            );
 
-            splines[0] = new CubicHermiteSpline(xInitial, midXControlVector,
-                    yInitial, midYControlVector);
-            splines[1] = new CubicHermiteSpline(midXControlVector, xFinal,
-                    midYControlVector, yFinal);
+            splines[1] = new QuinticHermiteSpline(
+                    waypoints[0].getX(), xFinal[0],
+                    xDeriv, xFinal[1],
+                    0.0, 0.0,
+                    waypoints[0].getY(), yFinal[0],
+                    yDeriv, yFinal[1],
+                    0.0, 0.0
+            );
         } else {
-            splines[0] = new CubicHermiteSpline(xInitial, xFinal,
-                    yInitial, yFinal);
+            splines[0] = QuinticHermiteSpline.fromPose(start.pose, end.pose,
+                    start.magMultiplier, end.magMultiplier);
         }
         return splines;
     }
@@ -171,5 +187,14 @@ public class WaypointOptimizer {
         for (int i = N - 2; i >= 0; i--) {
             solutionVector[i] = dStar[i] - cStar[i] * solutionVector[i + 1];
         }
+    }
+
+
+    private static double[] toControlVectorX(Pose2d pose, double ds_mag) {
+        return new double[]{pose.getTranslation().getX(), pose.getRotation().getCos() * ds_mag};
+    }
+
+    private static double[] toControlVectorY(Pose2d pose, double ds_mag) {
+        return new double[]{pose.getTranslation().getY(), pose.getRotation().getSin() * ds_mag};
     }
 }

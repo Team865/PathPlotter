@@ -7,7 +7,7 @@ import java.util.Objects;
 public class ControlPoint {
     public Pose2d pose;
     public boolean isSelected = false;
-    public double mag = 1.2;
+    public double magMultiplier = 1.2;
 
     public ControlPoint(Pose2d pose) {
         this.pose = pose;
