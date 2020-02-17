@@ -27,7 +27,7 @@ class ControlBar {
         timeSlider.max = t
     }
 
-    fun setTime(t: Double) {
+    fun setElapsedTime(t: Double) {
         timeSlider.value = t
     }
 
@@ -36,6 +36,9 @@ class ControlBar {
     private val theta = textField()
     private val mag = textField()
 
+    fun addTimePropertyListener(listener: (time: Double) -> Unit) {
+        timeSlider.valueProperty().addListener { _, _, newValue -> listener(newValue.toDouble()) }
+    }
 
     private fun fixWidthLabel(t: String): Label {
         return Label(t)

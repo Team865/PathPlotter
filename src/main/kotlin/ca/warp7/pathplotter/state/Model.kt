@@ -1,14 +1,9 @@
 package ca.warp7.pathplotter.state
 
 import ca.warp7.frc2020.lib.trajectory.QuinticHermiteSpline
-import ca.warp7.pathplotter.degrees
 import ca.warp7.pathplotter.remote.MeasuredState
-import edu.wpi.first.wpilibj.geometry.Pose2d
-import edu.wpi.first.wpilibj.geometry.Transform2d
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics
 import edu.wpi.first.wpilibj.trajectory.Trajectory
-import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig
-import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator
 import edu.wpi.first.wpilibj.trajectory.TrajectoryParameterizer
 import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveKinematicsConstraint
 

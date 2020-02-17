@@ -1,9 +1,8 @@
-package ca.warp7.pathplotter
+package ca.warp7.pathplotter.util
 
 import ca.warp7.pathplotter.constraint.*
 import edu.wpi.first.wpilibj.geometry.Rotation2d
 import edu.wpi.first.wpilibj.geometry.Translation2d
-import javafx.scene.canvas.GraphicsContext
 
 
 val constraintHandlers = listOf(

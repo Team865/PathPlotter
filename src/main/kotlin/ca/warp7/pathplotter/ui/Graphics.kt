@@ -1,10 +1,10 @@
 package ca.warp7.pathplotter.ui
 
-import ca.warp7.pathplotter.normal
 import ca.warp7.pathplotter.remote.MeasuredState
 import ca.warp7.pathplotter.state.PixelReference
-import ca.warp7.pathplotter.translation
 import ca.warp7.pathplotter.util.linearInterpolate
+import ca.warp7.pathplotter.util.normal
+import ca.warp7.pathplotter.util.translation
 import edu.wpi.first.wpilibj.geometry.Pose2d
 import edu.wpi.first.wpilibj.geometry.Rotation2d
 import edu.wpi.first.wpilibj.geometry.Translation2d
@@ -211,5 +211,10 @@ fun drawRobot(
     gc.fill()
 }
 
-fun GraphicsContext.lineTo(a: Translation2d, b: Translation2d) = strokeLine(a.x, a.y, b.x, b.y)
-fun GraphicsContext.vertex(a: Translation2d) = lineTo(a.x, a.y)
+fun GraphicsContext.lineTo(a: Translation2d, b: Translation2d) {
+    strokeLine(a.x, a.y, b.x, b.y)
+}
+
+fun GraphicsContext.vertex(a: Translation2d) {
+    lineTo(a.x, a.y)
+}

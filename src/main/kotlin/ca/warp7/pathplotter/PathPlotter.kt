@@ -8,6 +8,9 @@ import ca.warp7.pathplotter.ui.Constants
 import ca.warp7.pathplotter.state.PixelReference
 import ca.warp7.pathplotter.state.getDefaultModel
 import ca.warp7.pathplotter.ui.*
+import ca.warp7.pathplotter.util.constraintHandlers
+import ca.warp7.pathplotter.util.direction
+import ca.warp7.pathplotter.util.translation
 import edu.wpi.first.wpilibj.geometry.Pose2d
 import edu.wpi.first.wpilibj.geometry.Rotation2d
 import edu.wpi.first.wpilibj.geometry.Translation2d
@@ -423,7 +426,7 @@ class PathPlotter {
         simulating = false
         simPaused = false
         redrawScreen()
-        controlBar.setTime(0.0)
+        controlBar.setElapsedTime(0.0)
         simulationTimer.stop()
     }
 
@@ -473,7 +476,7 @@ class PathPlotter {
         infoBar.setVel(v, w, sample.accelerationMetersPerSecondSq, dwShim)
         infoBar.setCurve(k, dkShim, model.totalSumOfCurvature)
         controlBar.setPose(sample.poseMeters)
-        controlBar.setTime(t)
+        controlBar.setElapsedTime(t)
         infoBar.setTime(t, model.totalTime)
 
         drawRobot(ref, gc, model.robotWidth, model.robotLength, sample.poseMeters)
