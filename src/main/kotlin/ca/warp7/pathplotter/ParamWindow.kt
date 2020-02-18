@@ -1,15 +1,13 @@
 package ca.warp7.pathplotter
 
 import ca.warp7.pathplotter.fx.observable
+import ca.warp7.pathplotter.state.DefaultFields
 import ca.warp7.pathplotter.state.Model
 import edu.wpi.first.wpiutil.math.MathUtil
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.Scene
-import javafx.scene.control.CheckBox
-import javafx.scene.control.ComboBox
-import javafx.scene.control.Label
-import javafx.scene.control.TextField
+import javafx.scene.control.*
 import javafx.scene.image.Image
 import javafx.scene.layout.Background
 import javafx.scene.layout.GridPane
@@ -32,8 +30,12 @@ class ParamWindow(owner: Stage, private val model: Model, private val callback: 
         }
     }
 
-    private val fieldSelector = ComboBox(listOf("Infinite Recharge", "Destination: Deep Space", "FIRST Power Up").observable()).apply {
+    private val fieldSelector = ComboBox(DefaultFields.values().toList().observable()).apply {
         selectionModel.select(0)
+        valueProperty().addListener { _, _, nv ->
+            model.fieldConfig = nv.createFieldConfig()
+            callback()
+        }
     }
 
     private val botWidth = textField()

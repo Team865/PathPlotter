@@ -63,11 +63,6 @@ class PathPlotter {
     private val paramWindow = ParamWindow(stage, model) { regenerate() }
 
     private val fileMenu = Menu("File", null,
-            menuItem("Configure Field Background", MDI_IMAGE, combo(KeyCode.F, control = true)) {
-                val fc = dialogs.newFieldConfig()
-                model.fieldConfig = fc
-                redrawScreen()
-            },
             menuItem("Path Parameters", MDI_TUNE, combo(KeyCode.COMMA, control = true)) {
                 paramWindow.show()
             },
