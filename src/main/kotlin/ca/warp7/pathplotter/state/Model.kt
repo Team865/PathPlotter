@@ -1,13 +1,13 @@
 package ca.warp7.pathplotter.state
 
 import ca.warp7.frc2020.lib.trajectory.QuinticHermiteSpline
+import ca.warp7.pathplotter.constraint.CentripetalAccelerationHandler
+import ca.warp7.pathplotter.constraint.DifferentialDriveKinematicsHandler
+import ca.warp7.pathplotter.constraint.DifferentialDriveVoltageHandler
 import ca.warp7.pathplotter.util.translation
 import edu.wpi.first.wpilibj.geometry.Pose2d
-import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics
 import edu.wpi.first.wpilibj.trajectory.Trajectory
 import edu.wpi.first.wpilibj.trajectory.TrajectoryParameterizer
-import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveKinematicsConstraint
-import edu.wpi.first.wpilibj.trajectory.constraint.TrajectoryConstraint
 
 class Model {
 
@@ -29,7 +29,15 @@ class Model {
 
     val trajectoryList: MutableList<Trajectory> = ArrayList()
 
-    val constraints: MutableList<TrajectoryConstraint> = ArrayList()
+    val differentialDriveKinematicsHandler = DifferentialDriveKinematicsHandler()
+    val differentialDriveVoltageHandler = DifferentialDriveVoltageHandler()
+    val centripetalAccelerationHandler = CentripetalAccelerationHandler()
+
+    private val constraintHandlers = listOf(
+            differentialDriveKinematicsHandler,
+            differentialDriveVoltageHandler,
+            centripetalAccelerationHandler
+    )
 
 //    val measuredStates: MutableList<MeasuredState> = ArrayList()
 
@@ -42,7 +50,8 @@ class Model {
         }
         val poseStates = QuinticHermiteSpline.parameterize(paths)
         trajectoryList.clear()
-        trajectoryList.add(TrajectoryParameterizer.timeParameterizeTrajectory(poseStates, constraints,
+        trajectoryList.add(TrajectoryParameterizer.timeParameterizeTrajectory(poseStates,
+                constraintHandlers.mapNotNull { it.constraint },
                 0.0, 0.0, maxVelocity,
                 maxAcceleration, false))
         totalTime = trajectoryList.sumByDouble { it.totalTimeSeconds }
@@ -64,13 +73,13 @@ class Model {
                 .firstOrNull { it.value.isSelected }
                 ?: IndexedValue(controlPoints.lastIndex, controlPoints.last()))
                 .let { cp ->
-            val ps = cp.value.pose
-            cp.value.isSelected = false
-            val transform = ps.rotation.translation().times(1.5)
-            val newPose = Pose2d(ps.translation + transform, ps.rotation)
-            val newCp = ControlPoint(newPose)
-            newCp.isSelected = true
-            controlPoints.add(cp.index + 1, newCp)
-        }
+                    val ps = cp.value.pose
+                    cp.value.isSelected = false
+                    val transform = ps.rotation.translation().times(1.5)
+                    val newPose = Pose2d(ps.translation + transform, ps.rotation)
+                    val newCp = ControlPoint(newPose)
+                    newCp.isSelected = true
+                    controlPoints.add(cp.index + 1, newCp)
+                }
     }
 }
