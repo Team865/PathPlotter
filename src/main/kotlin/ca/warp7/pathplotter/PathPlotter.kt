@@ -6,7 +6,6 @@ import ca.warp7.pathplotter.remote.RemoteListener
 import ca.warp7.pathplotter.state.PixelReference
 import ca.warp7.pathplotter.state.getDefaultModel
 import ca.warp7.pathplotter.ui.*
-import ca.warp7.pathplotter.util.constraintHandlers
 import ca.warp7.pathplotter.util.direction
 import ca.warp7.pathplotter.util.translation
 import edu.wpi.first.wpilibj.geometry.Pose2d
@@ -73,10 +72,8 @@ class PathPlotter {
                 model.fieldConfig = fc
                 redrawScreen()
             },
-            menuItem("Robot Parameters", MDI_TUNE, combo(KeyCode.COMMA, control = true)) {
-                if (dialogs.robotParamDialog(model)) {
-                    regenerate()
-                }
+            menuItem("Path Parameters", MDI_TUNE, combo(KeyCode.COMMA, control = true)) {
+                paramWindow.show()
             },
 //            SeparatorMenuItem(),
 //            menuItem("Open Path", MDI_FOLDER_OUTLINE, null) {},
@@ -142,20 +139,9 @@ class PathPlotter {
 //            optimizationMenu
     )
 
-    private val constraintsMenu = Menu("Timing Constraints", FontIcon.of(MDI_GAUGE, 15))
-
-    private val trajectoryMenu = Menu("Trajectory", null,
+    private val viewMenu = Menu("View", null,
             menuItem("Toggle Trajectory Playback", MDI_PLAY, combo(KeyCode.SPACE)) { togglePlayback() },
             menuItem("Show Graphs", MDI_CHART_LINE, combo(KeyCode.G, control = true)) { showGraphs() },
-//            SeparatorMenuItem(),
-//            menuItem("Start Live Recording", MDI_RECORD, null) {},
-            SeparatorMenuItem(),
-            menuItem("Timing Constraints", MDI_GAUGE, combo(KeyCode.K, control = true)) {
-                paramWindow.show()
-            }
-    )
-
-    private val viewMenu = Menu("View", null,
             menuItem("Toggle Fullscreen", null, combo(KeyCode.F11)) {
                 isFullScreen = !isFullScreen
                 stage.isFullScreen = isFullScreen
@@ -177,15 +163,10 @@ class PathPlotter {
         stage.fullScreenExitKeyCombination = KeyCodeCombination(KeyCode.F11)
         stage.icons.add(Image(PathPlotter::class.java.getResourceAsStream("/icon.png")))
 
-        for (handler in constraintHandlers) {
-            constraintsMenu.items.add(MenuItem(handler.getName()).apply {
-                this.setOnAction { handler.editConstraint(stage) }
-            })
-        }
+
         menuBar.menus.addAll(
                 fileMenu,
                 pathMenu,
-                trajectoryMenu,
                 viewMenu,
                 dialogs.helpMenu
         )

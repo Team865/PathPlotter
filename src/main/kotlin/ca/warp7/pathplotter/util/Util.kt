@@ -1,17 +1,7 @@
 package ca.warp7.pathplotter.util
 
-import ca.warp7.pathplotter.constraint.*
 import edu.wpi.first.wpilibj.geometry.Rotation2d
 import edu.wpi.first.wpilibj.geometry.Translation2d
-
-
-val constraintHandlers = listOf(
-        DifferentialDriveKinematicsHandler(),
-        DifferentialDriveVoltageHandler(),
-        CentripetalAccelerationHandler(),
-        MecanumKinematicsHandler(),
-        SwerveKinematicsHandler()
-)
 
 val Number.degrees: Rotation2d get() = Rotation2d.fromDegrees(this.toDouble())
 
