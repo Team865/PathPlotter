@@ -14,7 +14,7 @@ import javafx.scene.layout.VBox
 import javafx.stage.Stage
 import org.kordamp.ikonli.materialdesign.MaterialDesign
 
-class Dialogs(val stage: Stage) {
+class Dialogs(private val stage: Stage) {
 
     private val aboutButton = menuItem("About", MaterialDesign.MDI_INFORMATION_OUTLINE, combo(KeyCode.F1, shift = true)) {
         val dialog = Dialog<ButtonType>()

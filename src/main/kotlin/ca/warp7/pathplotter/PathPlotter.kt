@@ -19,10 +19,7 @@ import javafx.scene.canvas.Canvas
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.control.*
 import javafx.scene.image.Image
-import javafx.scene.input.KeyCode
-import javafx.scene.input.KeyCodeCombination
-import javafx.scene.input.KeyCombination
-import javafx.scene.input.MouseEvent
+import javafx.scene.input.*
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.Pane
 import javafx.scene.layout.VBox
@@ -35,7 +32,7 @@ import kotlin.system.exitProcess
 
 class PathPlotter {
 
-    val stage = Stage()
+    private val stage = Stage()
 
     private val menuBar = MenuBar()
 
@@ -57,7 +54,6 @@ class PathPlotter {
     private val dialogs = Dialogs(stage)
     private val gc: GraphicsContext = canvas.graphicsContext2D
 
-    private var controlDown = false
     private var isFullScreen = false
 
     private val model = getDefaultModel()
@@ -171,21 +167,15 @@ class PathPlotter {
                 dialogs.helpMenu
         )
         canvas.setOnMousePressed {
-            onMousePressed(it.x, it.y)
-            it.consume()
-        }
-        canvas.setOnMouseDragged {
-            drag(it.x, it.y)
-            it.consume()
-        }
-        stage.scene.setOnKeyPressed {
-            if (it.isShortcutDown) {
-                controlDown = true
+            if (it.isPrimaryButtonDown) {
+                onMousePressed(it.x, it.y, it.isShortcutDown)
+                it.consume()
             }
         }
-        stage.scene.setOnKeyReleased {
-            if (!it.isShortcutDown) {
-                controlDown = false
+        canvas.setOnMouseDragged {
+            if (it.isPrimaryButtonDown) {
+                drag(it.x, it.y)
+                it.consume()
             }
         }
 
@@ -205,7 +195,7 @@ class PathPlotter {
 
     private var isDraggingAngle = false
 
-    private fun onMousePressed(x: Double, y: Double) {
+    private fun onMousePressed(x: Double, y: Double, controlDown: Boolean) {
         if (autoPlayback) {
             return
         }

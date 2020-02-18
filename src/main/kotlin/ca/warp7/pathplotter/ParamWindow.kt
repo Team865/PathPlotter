@@ -16,7 +16,7 @@ class ParamWindow(owner: Stage, private val model: Model) {
     private val stage = Stage()
 
     private fun textField(initial: String = ""): TextField {
-        return TextField(initial).apply { prefWidth = 60.0 }
+        return TextField(initial).apply { prefWidth = 50.0 }
     }
 
     private val grid = GridPane().apply {
@@ -75,7 +75,7 @@ class ParamWindow(owner: Stage, private val model: Model) {
         add(Label("Centripetal Acceleration Constraint"), 3, 4)
 
         add(HBox(
-                Label("Max Centripetal Acceleration (m/s²)"),
+                Label("Max Centripetal Accel. (m/s²)"),
                 textField()
         ).apply {
             spacing = 8.0
