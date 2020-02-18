@@ -46,6 +46,7 @@ class PathPlotter {
     private val infoBar = InfoBar()
     private val controlBar = ControlBar()
 
+
     private val view = BorderPane().apply {
         top = menuBar
         center = canvasContainer
@@ -61,7 +62,10 @@ class PathPlotter {
     private var isFullScreen = false
 
     private val model = getDefaultModel()
+
     private val ref = PixelReference()
+    private val graphWindow = GraphWindow(stage, model)
+    private val paramWindow = ParamWindow(stage, model)
 
     private val fileMenu = Menu("File", null,
             menuItem("Configure Field Background", MDI_IMAGE, combo(KeyCode.F, control = true)) {
@@ -146,7 +150,9 @@ class PathPlotter {
 //            SeparatorMenuItem(),
 //            menuItem("Start Live Recording", MDI_RECORD, null) {},
             SeparatorMenuItem(),
-            constraintsMenu
+            menuItem("Timing Constraints", MDI_GAUGE, combo(KeyCode.K, control = true)) {
+                paramWindow.show()
+            }
     )
 
     private val viewMenu = Menu("View", null,
@@ -284,8 +290,6 @@ class PathPlotter {
             }
         }
     }
-
-    private val graphWindow = GraphWindow(stage, model)
 
     private fun showGraphs() {
         graphWindow.show()

@@ -114,3 +114,7 @@
 .dialog-pane {
     -fx-background-color: white;
 }
+
+.grid-pane {
+    -fx-background-color: white;
+}

@@ -13,7 +13,7 @@ import javafx.scene.paint.Color
 import javafx.scene.text.FontSmoothingType
 import javafx.stage.Stage
 
-class GraphWindow(owner: Stage, val model: Model) {
+class GraphWindow(owner: Stage, private val model: Model) {
     private val stage = Stage()
     private val canvas = Canvas()
     private val gc: GraphicsContext = canvas.graphicsContext2D
@@ -31,8 +31,6 @@ class GraphWindow(owner: Stage, val model: Model) {
         stage.minWidth = 300.0
 
         stage.scene = scene
-
-        stage
     }
 
     fun show() {
