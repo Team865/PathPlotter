@@ -3,11 +3,14 @@ package ca.warp7.pathplotter
 import ca.warp7.pathplotter.fx.observable
 import ca.warp7.pathplotter.state.DefaultFields
 import ca.warp7.pathplotter.state.Model
-import edu.wpi.first.wpiutil.math.MathUtil
+import ca.warp7.pathplotter.util.f2
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.Scene
-import javafx.scene.control.*
+import javafx.scene.control.CheckBox
+import javafx.scene.control.ComboBox
+import javafx.scene.control.Label
+import javafx.scene.control.TextField
 import javafx.scene.image.Image
 import javafx.scene.layout.Background
 import javafx.scene.layout.GridPane
@@ -17,8 +20,8 @@ import javafx.stage.Stage
 class ParamWindow(owner: Stage, private val model: Model, private val callback: () -> Unit) {
     private val stage = Stage()
 
-    private fun textField(): TextField {
-        return TextField().apply {
+    private fun textField(initial: String = ""): TextField {
+        return TextField(initial).apply {
             prefWidth = 50.0
             setOnAction { updateAndRegenerate() }
         }
@@ -38,10 +41,10 @@ class ParamWindow(owner: Stage, private val model: Model, private val callback: 
         }
     }
 
-    private val botWidth = textField()
-    private val botLength = textField()
-    private val maxVel = textField()
-    private val maxAcc = textField()
+    private val botWidth = textField(model.robotWidth.f2)
+    private val botLength = textField(model.robotLength.f2)
+    private val maxVel = textField(model.maxVelocity.f2)
+    private val maxAcc = textField(model.maxAcceleration.f2)
 
     private val curvatureChangeOptimization = checkBox("Curvature Change Optimization")
 
@@ -129,26 +132,52 @@ class ParamWindow(owner: Stage, private val model: Model, private val callback: 
             return
         }
 
-        curvatureChangeOptimization.isSelected = model.optimizeCurvature
-        botWidth.text = model.robotWidth.toString()
-        botLength.text = model.robotLength.toString()
-        maxVel.text = model.maxVelocity.toString()
-        maxAcc.text = model.maxAcceleration.toString()
-
         stage.show()
     }
 
     private fun updateAndRegenerate() {
         try {
-            val bw = MathUtil.clamp(botWidth.text.toDouble(), 0.0, 10.0)
-            val bl = MathUtil.clamp(botLength.text.toDouble(), 0.0, 10.0)
-            val mv = MathUtil.clamp(maxVel.text.toDouble(), 0.0, 10.0)
-            val ma = MathUtil.clamp(maxAcc.text.toDouble(), 0.0, 10.0)
+            val bw = botWidth.text.toDouble().coerceIn(0.0, 10.0)
+            val bl = botLength.text.toDouble().coerceIn(0.0, 10.0)
+            val mv = maxVel.text.toDouble().coerceIn(0.0, 10.0)
+            val ma = maxAcc.text.toDouble().coerceIn(0.0, 10.0)
             model.robotWidth = bw
             model.robotLength = bl
             model.maxVelocity = mv
             model.maxAcceleration = ma
             model.optimizeCurvature = curvatureChangeOptimization.isSelected
+
+            model.differentialDriveKinematicsHandler.isEnabled =
+                    differentialDriveKinematicsConstraint.isSelected
+            if (model.differentialDriveKinematicsHandler.isEnabled) {
+                model.differentialDriveKinematicsHandler.maxSpeedMetresPerSecond =
+                        model.maxVelocity
+                model.differentialDriveKinematicsHandler.trackWidthMetres =
+                        trackWidth.text.toDouble().coerceIn(0.1, 10.0)
+            }
+
+
+            model.centripetalAccelerationHandler.isEnabled =
+                    centripetalAccelerationConstraint.isSelected
+            if (model.centripetalAccelerationHandler.isEnabled) {
+
+                model.centripetalAccelerationHandler.maxCentripetalAccelerationMetresPerSecondSq =
+                        maxCentripetal.text.toDouble().coerceIn(0.1, 10.0)
+            }
+
+            model.differentialDriveVoltageHandler.isEnabled =
+                    differentialDriveVoltageConstraint.isSelected
+            if (model.differentialDriveVoltageHandler.isEnabled) {
+                model.differentialDriveVoltageHandler.ks =
+                        ks.text.toDouble().coerceIn(0.0, 10.0)
+                model.differentialDriveVoltageHandler.kv =
+                        kv.text.toDouble().coerceIn(0.0, 10.0)
+                model.differentialDriveVoltageHandler.ka =
+                        ka.text.toDouble().coerceIn(0.0, 10.0)
+                model.differentialDriveVoltageHandler.maxVoltage = 12.0
+                model.differentialDriveVoltageHandler.trackWidthMetres =
+                        model.differentialDriveKinematicsHandler.trackWidthMetres
+            }
 
             callback()
         } catch (e: Exception) {

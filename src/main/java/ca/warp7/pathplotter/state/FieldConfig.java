@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FieldConfig {
     private String name;
@@ -72,7 +74,12 @@ public class FieldConfig {
         return fieldWidthMetres;
     }
 
+    private static Map<String, FieldConfig> loadedConfigs = new HashMap<>();
+
     public static FieldConfig fromResources(String resPath) {
+        if (loadedConfigs.containsKey(resPath)) {
+            return loadedConfigs.get(resPath);
+        }
         try {
             var input = FieldConfig.class.getResourceAsStream(resPath);
             BufferedReader reader = new BufferedReader(new InputStreamReader(input));
@@ -88,7 +95,7 @@ public class FieldConfig {
             var fc = json.getJSONObject("field-corners");
             var image = new Image(FieldConfig.class
                     .getResourceAsStream("/" + json.getString("field-image")));
-            return new FieldConfig(
+            var config =  new FieldConfig(
                     json.getString("game"),
                     image,
                     fc.getJSONArray("top-left").getInt(1),
@@ -98,6 +105,8 @@ public class FieldConfig {
                     json.getJSONArray("field-size").getDouble(0) * 0.3048,
                     json.getJSONArray("field-size").getDouble(1) * 0.3048
             );
+            loadedConfigs.put(resPath, config);
+            return config;
         } catch (IOException e) {
             e.printStackTrace();
             return DEFAULT;
