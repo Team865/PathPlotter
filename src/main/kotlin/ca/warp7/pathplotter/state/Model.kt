@@ -1,22 +1,19 @@
 package ca.warp7.pathplotter.state
 
 import ca.warp7.frc2020.lib.trajectory.QuinticHermiteSpline
-import ca.warp7.pathplotter.remote.MeasuredState
 import ca.warp7.pathplotter.util.translation
 import edu.wpi.first.wpilibj.geometry.Pose2d
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics
 import edu.wpi.first.wpilibj.trajectory.Trajectory
 import edu.wpi.first.wpilibj.trajectory.TrajectoryParameterizer
 import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveKinematicsConstraint
+import edu.wpi.first.wpilibj.trajectory.constraint.TrajectoryConstraint
 
 class Model {
 
     var fieldConfig = FieldConfig.fromResources("/2020-infiniterecharge.json")!!
 
     val controlPoints: MutableList<ControlPoint> = ArrayList()
-
-    var maxAngular = 0.0
-    var maxAngularAcc = 0.0
 
     var totalTime = 0.0
     var totalSumOfCurvature = 0.0
@@ -28,27 +25,24 @@ class Model {
     var maxVelocity = 2.1
     var maxAcceleration = 2.8
 
-    var optimizing = false
+    var optimizeCurvature = false
 
     val trajectoryList: MutableList<Trajectory> = ArrayList()
 
-    val measuredStates: MutableList<MeasuredState> = ArrayList()
+    val constraints: MutableList<TrajectoryConstraint> = ArrayList()
+
+//    val measuredStates: MutableList<MeasuredState> = ArrayList()
 
     fun regenerateAll() {
         val paths = controlPoints.zipWithNext { a, b ->
             QuinticHermiteSpline.fromPose(a.pose, b.pose, a.magMultiplier, b.magMultiplier)
         }
-        if (optimizing) {
+        if (optimizeCurvature) {
             QuinticHermiteSpline.optimizeSpline(paths.toMutableList())
         }
         val poseStates = QuinticHermiteSpline.parameterize(paths)
         trajectoryList.clear()
-        trajectoryList.add(TrajectoryParameterizer.timeParameterizeTrajectory(poseStates, listOf(
-                DifferentialDriveKinematicsConstraint(
-                        DifferentialDriveKinematics(0.701),
-                        3.0
-                )
-        ),
+        trajectoryList.add(TrajectoryParameterizer.timeParameterizeTrajectory(poseStates, constraints,
                 0.0, 0.0, maxVelocity,
                 maxAcceleration, false))
         totalTime = trajectoryList.sumByDouble { it.totalTimeSeconds }
