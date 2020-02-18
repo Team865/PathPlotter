@@ -19,7 +19,7 @@ repositories {
 }
 
 group = "pathplotter"
-version = "2020.2.1"
+version = "2020.2.3"
 
 buildConfig {
     packageName("ca.warp7.pathplotter")

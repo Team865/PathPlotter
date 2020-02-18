@@ -46,7 +46,7 @@ class ParamWindow(owner: Stage, private val model: Model, private val callback: 
     private val maxVel = textField(model.maxVelocity.f2)
     private val maxAcc = textField(model.maxAcceleration.f2)
 
-    private val curvatureChangeOptimization = checkBox("Curvature Change Optimization")
+    private val curvatureChangeOptimization = checkBox("Minimize Curvature Change")
 
     private val differentialDriveKinematicsConstraint = checkBox()
     private val differentialDriveVoltageConstraint = checkBox()
@@ -75,7 +75,7 @@ class ParamWindow(owner: Stage, private val model: Model, private val callback: 
         add(Label("Max Velocity (m/s)"), 0, 3)
         add(maxVel, 1, 3)
 
-        add(Label("Max Acceleration (m/s)"), 0, 4)
+        add(Label("Max Acceleration (m/s²)"), 0, 4)
         add(maxAcc, 1, 4)
 
         add(curvatureChangeOptimization, 0, 5, 2, 1)
@@ -179,8 +179,10 @@ class ParamWindow(owner: Stage, private val model: Model, private val callback: 
                         model.differentialDriveKinematicsHandler.trackWidthMetres
             }
 
+            stage.title = "Path Parameters"
             callback()
         } catch (e: Exception) {
+            stage.title = "Path Parameters | Error: ${e.localizedMessage}"
         }
     }
 }
