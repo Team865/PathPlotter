@@ -1,16 +1,14 @@
 @file:Suppress("UnusedImport", "SpellCheckingInspection")
 
 import org.gradle.internal.os.OperatingSystem
-import org.javamodularity.moduleplugin.extensions.TestModuleOptions
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     java
     application
     kotlin("jvm") version "1.3.60"
-    id("org.javamodularity.moduleplugin") version "1.6.0"
-    id("org.openjfx.javafxplugin") version "0.0.9-SNAPSHOT"
     id("org.beryx.jlink") version "2.17.0"
+    id("com.github.gmazzo.buildconfig") version "1.6.2"
 }
 
 repositories {
@@ -21,14 +19,15 @@ repositories {
 }
 
 group = "pathplotter"
-version = "2020.2.0"
+version = "2020.2.3"
 
-application {
-    mainClassName = "pathplotter/ca.warp7.pathplotter.MainKt"
+buildConfig {
+    packageName("ca.warp7.pathplotter")
+    buildConfigField("String", "kVersion", "\"${version}\"")
 }
 
-javafx {
-    modules("javafx.controls")
+application {
+    mainClassName = "ca.warp7.pathplotter.Main"
 }
 
 tasks.withType<KotlinCompile> {
@@ -41,15 +40,17 @@ tasks.withType<KotlinCompile> {
     }
 }
 
+tasks.compileKotlin {
+    destinationDir = tasks.compileJava.get().destinationDir
+}
+
 tasks.withType<Test> {
-    extensions.configure(TestModuleOptions::class.java) {
-        runOnClasspath = true
-    }
     useJUnitPlatform {
     }
 }
 
 val wpilibVersion = "2020.2.2"
+val jacksonVersion = "2.10.0"
 
 fun desktopArch(): String {
     val arch: String = System.getProperty("os.arch")
@@ -64,7 +65,30 @@ fun desktopOS(): String {
     }
 }
 
-val platform =  desktopOS() + desktopArch()
+fun javafxOS(): String {
+    return when {
+        OperatingSystem.current().isWindows -> "win"
+        OperatingSystem.current().isMacOsX -> "mac"
+        else -> "linux"
+    }
+}
+
+val wpilibPlatform =  desktopOS() + desktopArch()
+val javafxPlatform = javafxOS()
+
+tasks.compileJava {
+    doFirst {
+        options.compilerArgs.addAll(listOf(
+                "--module-path", classpath.asPath,
+                "--add-modules", "pathplotter"
+        ))
+        classpath = files()
+    }
+}
+
+tasks.jar {
+    this.duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
 
 dependencies {
     implementation(kotlin("stdlib"))
@@ -72,11 +96,15 @@ dependencies {
     implementation("edu.wpi.first.wpilibj:wpilibj-java:$wpilibVersion")
     implementation("edu.wpi.first.wpiutil:wpiutil-java:$wpilibVersion")
     implementation("edu.wpi.first.ntcore:ntcore-java:$wpilibVersion")
-    implementation("edu.wpi.first.ntcore:ntcore-jni:$wpilibVersion:$platform")
+    implementation("edu.wpi.first.ntcore:ntcore-jni:$wpilibVersion:$wpilibPlatform")
+
+    implementation("org.openjfx:javafx-base:13:$javafxPlatform")
+    implementation("org.openjfx:javafx-graphics:13:$javafxPlatform")
+    implementation("org.openjfx:javafx-controls:13:$javafxPlatform")
     implementation("org.kordamp.ikonli:ikonli-javafx:11.3.5")
     implementation("org.kordamp.ikonli:ikonli-materialdesign-pack:11.3.5")
+    implementation("org.json:json:20190722")
 
-    testImplementation(kotlin("test"))
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-api", version = "5.6.0")
 
     testRuntimeOnly(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = "5.6.0")
@@ -84,6 +112,9 @@ dependencies {
 }
 
 jlink {
+    this.launcher {
+        this.jvmArgs = listOf("--add-reads", "pathplotter.merged.module=pathplotter")
+    }
     options.addAll("--strip-debug", "--no-header-files",
-            "--no-man-pages", "--strip-native-commands")
+            "--no-man-pages")
 }

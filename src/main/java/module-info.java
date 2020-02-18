@@ -8,9 +8,10 @@ module pathplotter {
     requires org.kordamp.ikonli.materialdesign;
     requires org.kordamp.iconli.core;
 
-    exports ca.warp7.pathplotter;
-    exports ca.warp7.frc2020.lib.trajectory;
-    exports edu.wpi.first.hal;
     requires ntcore.java;
     requires ntcore.jni;
+    requires org.json;
+
+    exports ca.warp7.pathplotter;
+    exports edu.wpi.first.hal;
 }

@@ -1,4 +1,4 @@
-package ca.warp7.pathplotter.networktables;
+package ca.warp7.pathplotter.remote;
 
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Transform2d;
