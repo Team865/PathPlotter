@@ -6,8 +6,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     java
     application
-    kotlin("jvm") version "1.3.60"
-    id("org.beryx.jlink") version "2.17.0"
+    kotlin("jvm") version "1.3.70"
+    id("org.beryx.jlink") version "2.17.2"
     id("com.github.gmazzo.buildconfig") version "1.6.2"
 }
 
