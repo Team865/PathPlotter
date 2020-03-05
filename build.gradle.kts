@@ -6,8 +6,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     java
     application
-    kotlin("jvm") version "1.3.60"
-    id("org.beryx.jlink") version "2.17.0"
+    kotlin("jvm") version "1.3.70"
+    id("org.beryx.jlink") version "2.17.2"
     id("com.github.gmazzo.buildconfig") version "1.6.2"
 }
 
@@ -19,7 +19,7 @@ repositories {
 }
 
 group = "pathplotter"
-version = "2020.2.3"
+version = "2020.3.0"
 
 buildConfig {
     packageName("ca.warp7.pathplotter")
@@ -49,7 +49,7 @@ tasks.withType<Test> {
     }
 }
 
-val wpilibVersion = "2020.2.2"
+val wpilibVersion = "2020.3.2"
 val jacksonVersion = "2.10.0"
 
 fun desktopArch(): String {

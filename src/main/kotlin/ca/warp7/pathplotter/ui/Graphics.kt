@@ -2,9 +2,7 @@ package ca.warp7.pathplotter.ui
 
 import ca.warp7.pathplotter.remote.MeasuredState
 import ca.warp7.pathplotter.state.PixelReference
-import ca.warp7.pathplotter.util.linearInterpolate
-import ca.warp7.pathplotter.util.normal
-import ca.warp7.pathplotter.util.translation
+import ca.warp7.pathplotter.util.*
 import edu.wpi.first.wpilibj.geometry.Pose2d
 import edu.wpi.first.wpilibj.geometry.Rotation2d
 import edu.wpi.first.wpilibj.geometry.Translation2d
@@ -65,9 +63,11 @@ fun drawSplines(
         odd: Boolean,
         gc: GraphicsContext,
         robotHalfWidth: Double,
-        robotHalfLength: Double
+        robotHalfLength: Double,
+        reversed: Boolean
 ) {
 
+    val reverse = (!reversed).toIntSign()
     val maxCurvature = trajectory.states.map { abs(it.curvatureRadPerMeter) }.max()!!
 
     gc.lineWidth = 1.5
@@ -84,9 +84,9 @@ fun drawSplines(
         } else {
             gc.stroke = Color.rgb(0, 255, 0)
         }
-        val a0 = ref.transform(t0) - ref.scale(Translation2d(robotHalfLength,
+        val a0 = ref.transform(t0) - ref.scale(Translation2d(robotHalfLength * reverse,
                 robotHalfWidth).rotateBy(s0.poseMeters.rotation))
-        val b0 = ref.transform(t0) + ref.scale(Translation2d(-robotHalfLength,
+        val b0 = ref.transform(t0) + ref.scale(Translation2d(-robotHalfLength * reverse,
                 robotHalfWidth).rotateBy(s0.poseMeters.rotation))
         gc.lineTo(a0, b0)
         gc.lineTo(left, a0)
@@ -130,14 +130,52 @@ fun drawSplines(
         } else {
             gc.stroke = Color.rgb(0, 255, 0)
         }
-        val a1 = ref.transform(t1) - ref.scale(Translation2d(-robotHalfLength,
+        val a1 = ref.transform(t1) - ref.scale(Translation2d(-robotHalfLength * reverse,
                 robotHalfWidth).rotateBy(s1.poseMeters.rotation))
-        val b1 = ref.transform(t1) + ref.scale(Translation2d(robotHalfLength,
+        val b1 = ref.transform(t1) + ref.scale(Translation2d(robotHalfLength * reverse,
                 robotHalfWidth).rotateBy(s1.poseMeters.rotation))
         gc.lineTo(a1, b1)
         gc.lineTo(left, a1)
         gc.lineTo(right, b1)
     }
+}
+
+fun drawRuler(ref: PixelReference, gc: GraphicsContext, a: Translation2d, b: Translation2d) {
+    val lw = ref.scale(Translation2d(0.2, 0.0)).x
+    gc.lineWidth = lw
+    gc.lineCap = StrokeLineCap.SQUARE
+    gc.stroke = Color.YELLOW
+
+    val at = ref.transform(a)
+    val bt = ref.transform(b)
+    gc.lineTo(at, bt)
+    val diff = b.minus(a)
+    val mag = diff.norm
+    val norm = diff.div(mag)
+    val normal4 = Translation2d(norm.y * lw * 0.5, norm.x * lw * 0.5)
+    val normal2 = Translation2d(norm.y * lw * 0.3, norm.x * lw * 0.3)
+
+    gc.stroke = Color.GRAY
+    gc.lineWidth = 1.0
+    var x = 0.0
+    while (x < mag) {
+        val k = at + ref.scale(norm.times(x))
+        gc.lineTo(k.minus(normal2), k.plus(normal4))
+        x += 0.1
+    }
+
+    gc.stroke = Color.BLACK
+    gc.lineWidth = 2.0
+    x = 0.0
+    while (x < mag) {
+        val k = at + ref.scale(norm.times(x))
+        gc.lineTo(k.minus(normal2), k.plus(normal4))
+        x += 1.0
+    }
+
+    gc.fill = Color.LIME
+    val tt = ref.transform(Translation2d(0.8, -4.0))//bt.plus(Translation2d(norm.x * pix, -norm.y * pix))
+    gc.fillText("${mag.f2}m  ${norm.direction().degrees.f1}°", tt.x, tt.y)
 }
 
 fun drawMeasuredStates(

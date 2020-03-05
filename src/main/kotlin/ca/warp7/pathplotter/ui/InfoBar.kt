@@ -12,7 +12,7 @@ import org.kordamp.ikonli.javafx.FontIcon
 import org.kordamp.ikonli.materialdesign.MaterialDesign.*
 import kotlin.math.abs
 
-class InfoBar  {
+class InfoBar {
 
     private fun label(icon: Ikon): Label {
         val label = Label()
@@ -26,8 +26,8 @@ class InfoBar  {
     private val curve = label(MDI_VECTOR_CURVE)
     private val vel = label(MDI_SPEEDOMETER)
 
-    private val red = Background(BackgroundFill(Color.RED, CornerRadii(6.0), null ))
-    private val green = Background(BackgroundFill(Color.GREEN, CornerRadii(6.0), null ))
+    private val red = Background(BackgroundFill(Color.RED, CornerRadii(6.0), null))
+    private val green = Background(BackgroundFill(Color.GREEN, CornerRadii(6.0), null))
 
     private val robotStatus = Pane().apply {
         prefWidth = 12.0
@@ -63,12 +63,12 @@ class InfoBar  {
         time.text = "${current.f2}/${total.f2}s"
     }
 
-    fun setDist( total: Double) {
+    fun setDist(total: Double) {
         dist.text = "${total.f2}m"
     }
 
     fun setCurve(k: Double, dk: Double, sdk2: Double) {
-        curve.text = "κ=${f(k)}   κ'=${f(dk)}   Σ(κ')²=${sdk2.f2}"
+        curve.text = "κ=${f(k)}  κ'=${f(dk)}  Σ(κ')²=${sdk2.f2}"
     }
 
     fun setVel(v: Double, w: Double, dv: Double, dw: Double) {

@@ -4,8 +4,10 @@ import ca.warp7.frc2020.lib.trajectory.QuinticHermiteSpline
 import ca.warp7.pathplotter.constraint.CentripetalAccelerationHandler
 import ca.warp7.pathplotter.constraint.DifferentialDriveKinematicsHandler
 import ca.warp7.pathplotter.constraint.DifferentialDriveVoltageHandler
+import ca.warp7.pathplotter.util.kFlip
 import ca.warp7.pathplotter.util.translation
 import edu.wpi.first.wpilibj.geometry.Pose2d
+import edu.wpi.first.wpilibj.geometry.Translation2d
 import edu.wpi.first.wpilibj.trajectory.Trajectory
 import edu.wpi.first.wpilibj.trajectory.TrajectoryParameterizer
 
@@ -26,6 +28,7 @@ class Model {
     var maxAcceleration = 2.8
 
     var optimizeCurvature = false
+    var reversed = false
 
     val trajectoryList: MutableList<Trajectory> = ArrayList()
 
@@ -39,16 +42,25 @@ class Model {
             centripetalAccelerationHandler
     )
 
-//    val measuredStates: MutableList<MeasuredState> = ArrayList()
-
     fun regenerateAll() {
-        val paths = controlPoints.zipWithNext { a, b ->
+        val points = if (reversed) {
+            controlPoints.map { ControlPoint(it.pose.plus(kFlip), it.isSelected, it.magMultiplier) }.reversed()
+        } else {
+            controlPoints
+        }
+        val paths = points.zipWithNext { a, b ->
             QuinticHermiteSpline.fromPose(a.pose, b.pose, a.magMultiplier, b.magMultiplier)
         }
         if (optimizeCurvature) {
             QuinticHermiteSpline.optimizeSpline(paths.toMutableList())
         }
-        val poseStates = QuinticHermiteSpline.parameterize(paths)
+        val poseStates = QuinticHermiteSpline.parameterize(paths).toMutableList()
+        if (reversed) {
+            poseStates.forEach {
+                it.poseMeters = it.poseMeters.plus(kFlip)
+                it.curvatureRadPerMeter *= -1
+            }
+        }
         trajectoryList.clear()
         trajectoryList.add(TrajectoryParameterizer.timeParameterizeTrajectory(poseStates,
                 constraintHandlers.mapNotNull { it.constraint },

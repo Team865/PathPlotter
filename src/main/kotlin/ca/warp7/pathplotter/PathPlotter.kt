@@ -108,9 +108,10 @@ class PathPlotter {
                 model.addPoint()
                 regenerate()
             },
-//            menuItem("Insert Reverse Direction", MDI_SWAP_VERTICAL, combo(KeyCode.R, control = true)) {
-//
-//            },
+            menuItem("Reverse Path", MDI_SWAP_VERTICAL, combo(KeyCode.R, control = true)) {
+                model.reversed = !model.reversed
+                regenerate()
+            },
 //            menuItem("Insert Quick Turn", MDI_SYNC, combo(KeyCode.T, control = true)) {
 //
 //            },
@@ -190,6 +191,11 @@ class PathPlotter {
 
     private var isDraggingAngle = false
 
+    private var measureStart = Translation2d(1.0, -2.0)
+    private var measureEnd = Translation2d(1.0, 2.0)
+    private var draggingMeasuredStart = false
+    private var draggingMeasuredEnd = false
+
     private fun onMousePressed(x: Double, y: Double, controlDown: Boolean) {
         if (autoPlayback) {
             return
@@ -233,6 +239,9 @@ class PathPlotter {
             }
         }
 
+        draggingMeasuredStart = mouseOnField.getDistance(measureStart) < 0.2
+        draggingMeasuredEnd = mouseOnField.getDistance(measureEnd) < 0.2
+
         if (selectionChanged) {
             redrawScreen()
         }
@@ -243,6 +252,16 @@ class PathPlotter {
             return
         }
         val mouseOnField = ref.inverseTransform(Translation2d(x, y))
+        if (draggingMeasuredStart) {
+            measureStart = mouseOnField
+            redrawScreen()
+            return
+        }
+        if (draggingMeasuredEnd) {
+            measureEnd = mouseOnField
+            redrawScreen()
+            return
+        }
         for (controlPoint in model.controlPoints) {
             if (controlPoint.isSelected) {
                 if (isDraggingAngle) {
@@ -331,7 +350,8 @@ class PathPlotter {
 
         for ((index, trajectory) in model.trajectoryList.withIndex()) {
             drawSplines(ref, trajectory, index % 2 == 1, gc,
-                    model.robotWidth / 2.0, model.robotLength / 2.0)
+                    model.robotWidth / 2.0,
+                    model.robotLength / 2.0, model.reversed)
         }
 
         drawPlaybackGraphics()
@@ -339,6 +359,8 @@ class PathPlotter {
             updateSelectedPointInfo()
             drawAllControlPoints()
         }
+
+        drawRuler(ref, gc, measureStart, measureEnd)
 
         graphWindow.drawGraph()
     }
