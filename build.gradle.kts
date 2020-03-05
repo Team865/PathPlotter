@@ -7,7 +7,7 @@ plugins {
     java
     application
     kotlin("jvm") version "1.3.70"
-    id("org.beryx.jlink") version "2.17.2"
+    id("org.beryx.jlink") version "2.17.0"
     id("com.github.gmazzo.buildconfig") version "1.6.2"
 }
 
@@ -19,7 +19,7 @@ repositories {
 }
 
 group = "pathplotter"
-version = "2020.3.0"
+version = "2020.3.1"
 
 buildConfig {
     packageName("ca.warp7.pathplotter")
