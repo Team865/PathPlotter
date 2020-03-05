@@ -13,6 +13,12 @@ public class ControlPoint {
         this.pose = pose;
     }
 
+    public ControlPoint(Pose2d pose, boolean isSelected, double magMultiplier) {
+        this.pose = pose;
+        this.isSelected = isSelected;
+        this.magMultiplier = magMultiplier;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
