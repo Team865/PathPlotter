@@ -174,8 +174,8 @@ fun drawRuler(ref: PixelReference, gc: GraphicsContext, a: Translation2d, b: Tra
     }
 
     gc.fill = Color.LIME
-    val tt = ref.transform(Translation2d(0.8, -4.0))//bt.plus(Translation2d(norm.x * pix, -norm.y * pix))
-    gc.fillText("${mag.f2}m  ${norm.direction().degrees.f1}°", tt.x, tt.y)
+    val tt = ref.transform(Translation2d(0.8, -3.7))
+    gc.fillText("${mag.f2}m  [${norm.direction().degrees.f1}°]\n(${diff.x.f2}m, ${diff.y.f2}m)", tt.x, tt.y)
 }
 
 fun drawMeasuredStates(
